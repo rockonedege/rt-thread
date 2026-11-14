@@ -21,7 +21,7 @@
 #define INT_IRQ     0x00
 #define INT_FIQ     0x01
 
-extern rt_uint32_t rt_interrupt_nest;
+extern rt_atomic_t rt_interrupt_nest;
 
 rt_uint32_t rt_interrupt_from_thread, rt_interrupt_to_thread;
 rt_uint32_t rt_thread_switch_interrupt_flag;
@@ -48,19 +48,23 @@ void rt_interrupt_dispatch(rt_uint32_t fiq_irq)
     /* Get irq number */
     _mIPER = (inpw(REG_AIC_IPER) >> 2) & 0x3f;
     _mISNR = inpw(REG_AIC_ISNR) & 0x3f;
-    if ((_mIPER != _mISNR) || _mISNR == 0)
-        return;
 
-    /* Get interrupt service routine */
-    isr_func = irq_desc[_mISNR].handler;
-    param = irq_desc[_mISNR].param;
+    if (_mISNR != 0)
+    {
+        if (_mIPER == _mISNR)
+        {
+            /* Get interrupt service routine */
+            isr_func = irq_desc[_mISNR].handler;
+            param = irq_desc[_mISNR].param;
 
 #ifdef RT_USING_INTERRUPT_INFO
-    irq_desc[_mISNR].counter ++;
+            irq_desc[_mISNR].counter ++;
 #endif
 
-    /* Turn to interrupt service routine */
-    isr_func(_mISNR, param);
+            /* Turn to interrupt service routine */
+            isr_func(_mISNR, param);
+        }
+    }
 
     /* Handled the ISR. */
     outpw(REG_AIC_EOSCR, 1);
@@ -70,8 +74,9 @@ void rt_hw_interrupt_init(void)
 {
     int i;
 
-    *((volatile unsigned int *)REG_AIC_ISR)  = 0xFFFFFFFF;   // disable all interrupt channel
-    *((volatile unsigned int *)REG_AIC_ISRH) = 0xFFFFFFFF;   // disable all interrupt channel
+    outpw(REG_AIC_ISR, 0xFFFFFFFF);  // disable all interrupt channel
+    outpw(REG_AIC_ISRH, 0xFFFFFFFF); // disable all interrupt channel
+    outpw(REG_AIC_EOSCR, 1);
 
     /* init interrupt nest, and context in thread sp */
     rt_interrupt_nest               = 0;
@@ -230,6 +235,8 @@ static void _nu_sys_ipclk(E_SYS_IPCLK eIPClkIdx, uint32_t bEnable)
     /* Enter critical section */
     level = rt_hw_interrupt_disable();
 
+    SYS_UnlockReg();
+
     if (bEnable)
     {
         /* Enable IP CLK */
@@ -240,6 +247,8 @@ static void _nu_sys_ipclk(E_SYS_IPCLK eIPClkIdx, uint32_t bEnable)
         /* Disable IP CLK */
         outpw(u32IPCLKRegAddr, inpw(u32IPCLKRegAddr) & ~(1 << u32IPCLKRegBit));
     }
+
+    SYS_LockReg();
 
     /* Leave critical section */
     rt_hw_interrupt_enable(level);

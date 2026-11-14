@@ -81,7 +81,7 @@ static rt_err_t es32f3_pwm_control(struct rt_device_pwm *device, int cmd, void *
         _ccep_ch_en = timer_initstruct->perh->CCEP & TIMER_CCEP_CC4EN_MSK;
     }
     else
-        return RT_EINVAL;
+        return -RT_EINVAL;
 
     switch (cmd)
     {
@@ -268,7 +268,7 @@ int rt_hw_pwm_init(void)
     ald_gpio_init(ES_GP32C4T0_CH4_GPIO_PORT, ES_GP32C4T0_CH4_GPIO_PIN, &gpio_initstructure);
 #endif
 
-    ret = rt_device_pwm_register(&gp32c4t0_pwm_dev, ES_DEVICE_NAME_AD16C4T1_PWM, &es32f3_pwm_ops,
+    ret = rt_device_pwm_register(&gp32c4t0_pwm_dev, ES_DEVICE_NAME_GP32C4T0_PWM, &es32f3_pwm_ops,
                                  &gp32c4t0_timer_initstruct);
 #endif
 

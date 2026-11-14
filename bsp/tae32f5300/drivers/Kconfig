@@ -1,7 +1,7 @@
 menu "Hardware Drivers Config"
 
 config MCU_TAE32F53xx
-    bool 
+    bool
     select ARCH_ARM_CORTEX_M3
     select RT_USING_COMPONENTS_INIT
     select RT_USING_USER_MAIN
@@ -51,23 +51,25 @@ menu "On-chip Peripheral Drivers"
                 default n
         endif
 
-    menuconfig BSP_USING_I2C1
-        bool "Enable I2C1 BUS (software simulation)"
-        default y
+    menuconfig BSP_USING_SOFT_I2C
+        bool "Enable software I2C (swi2c)"
+        default n
         select RT_USING_I2C
-        select RT_USING_I2C_BITOPS
-        select RT_USING_PIN 
-        if BSP_USING_I2C1
-            config BSP_I2C1_SCL_PIN
-                int "i2c1 scl pin number"
-                range 1 176
-                default 51
-            config BSP_I2C1_SDA_PIN
-                int "I2C1 sda pin number"
-                range 1 176
-                default 90
-        endif 
-
+        select RT_USING_SOFT_I2C
+        if BSP_USING_SOFT_I2C
+        menuconfig BSP_USING_SOFT_I2C1
+            bool "Enable software I2C1 Bus (swi2c1)"
+            default n
+            select RT_USING_SOFT_I2C1
+            if BSP_USING_SOFT_I2C1
+                config RT_SOFT_I2C1_SCL_PIN
+                    int "swi2c1 SCL pin number"
+                    default 51
+                config RT_SOFT_I2C1_SDA_PIN
+                    int "swi2c1 SDA pin number"
+                    default 90
+            endif
+        endif
     menuconfig BSP_USING_SPI
         bool "Enable SPI BUS"
         default n
@@ -81,42 +83,42 @@ menu "On-chip Peripheral Drivers"
                 bool "Enable SPI1 TX DMA"
                 depends on BSP_USING_SPI1
                 default n
-                
+
             config BSP_SPI1_RX_USING_DMA
                 bool "Enable SPI1 RX DMA"
                 depends on BSP_USING_SPI1
                 select BSP_SPI1_TX_USING_DMA
                 default n
-                
+
             config BSP_USING_SPI2
                 bool "Enable SPI2 BUS"
-                default n  
-                
+                default n
+
             config BSP_SPI2_TX_USING_DMA
                 bool "Enable SPI2 TX DMA"
                 depends on BSP_USING_SPI2
                 default n
-                
+
             config BSP_SPI2_RX_USING_DMA
                 bool "Enable SPI2 RX DMA"
                 depends on BSP_USING_SPI2
                 select BSP_SPI2_TX_USING_DMA
                 default n
-                
+
             config BSP_USING_SPI3
                 bool "Enable SPI3 BUS"
-                default n        
+                default n
 
             config BSP_SPI3_TX_USING_DMA
                 bool "Enable SPI3 TX DMA"
                 depends on BSP_USING_SPI3
                 default n
-                
+
             config BSP_SPI3_RX_USING_DMA
                 bool "Enable SPI3 RX DMA"
                 depends on BSP_USING_SPI3
                 select BSP_SPI3_TX_USING_DMA
-                default n  
+                default n
 
             config BSP_USING_SPI4
                 bool "Enable SPI4 BUS"
@@ -126,52 +128,51 @@ menu "On-chip Peripheral Drivers"
                 bool "Enable SPI4 TX DMA"
                 depends on BSP_USING_SPI4
                 default n
-                
+
             config BSP_SPI4_RX_USING_DMA
                 bool "Enable SPI4 RX DMA"
                 depends on BSP_USING_SPI4
                 select BSP_SPI4_TX_USING_DMA
                 default n
-                
+
             config BSP_USING_SPI5
                 bool "Enable SPI5 BUS"
-                default n  
-                
+                default n
+
             config BSP_SPI5_RX_USING_DMA
                 bool "Enable SPI5 TX DMA"
                 depends on BSP_USING_SPI5
                 default n
-                
+
             config BSP_SPI5_RX_USING_DMA
                 bool "Enable SPI5 RX DMA"
                 depends on BSP_USING_SPI5
                 select BSP_SPI5_TX_USING_DMA
                 default n
-                
+
             config BSP_USING_SPI6
                 bool "Enable SPI6 BUS"
-                default n        
+                default n
 
             config BSP_SPI6_TX_USING_DMA
                 bool "Enable SPI6 TX DMA"
                 depends on BSP_USING_SPI6
                 default n
-                
+
             config BSP_SPI6_RX_USING_DMA
                 bool "Enable SPI6 RX DMA"
                 depends on BSP_USING_SPI6
                 select BSP_SPI6_TX_USING_DMA
-                default n 
+                default n
         endif
 
     menuconfig BSP_USING_RTC
         bool "Enable RTC"
         select RT_USING_RTC
-        select RT_USING_LIBC
         default n
 
         if BSP_USING_RTC
-            choice
+            choice CLK_SRC_SEL
                 prompt "Select clock source"
                 default BSP_RTC_USING_LRC
 
@@ -189,7 +190,7 @@ menu "On-chip Peripheral Drivers"
         select RT_USING_PWM
         if BSP_USING_PWM
         menuconfig BSP_USING_PWM1
-            bool "Enable timer1 output pwm"
+            bool "Enable timer1 output PWM"
             default n
             if BSP_USING_PWM1
                 config BSP_USING_PWM1_CH1
@@ -210,7 +211,7 @@ menu "On-chip Peripheral Drivers"
             endif
 
         menuconfig BSP_USING_PWM2
-            bool "Enable timer2 output pwm"
+            bool "Enable timer2 output PWM"
             default n
             if BSP_USING_PWM2
                 config BSP_USING_PWM2_CH1
@@ -234,7 +235,7 @@ menu "On-chip Peripheral Drivers"
     menuconfig BSP_USING_TIMER
         bool "Enable TIMER"
         default n
-        select RT_USING_HWTIMER
+        select RT_USING_CLOCK_TIME
         if BSP_USING_TIMER
             config BSP_USING_TIMER5
                 bool "Enable TIMER5"
@@ -280,6 +281,18 @@ endmenu
 menu "Board extended module Drivers"
 
 endmenu
+
+    config RT_SOFT_I2C1_HAS_PIN_DEFAULT
+        bool
+        default y if RT_USING_SOFT_I2C1
+
+    config RT_SOFT_I2C1_SCL_PIN_DEFAULT
+        int
+        default 51 if RT_USING_SOFT_I2C1
+
+    config RT_SOFT_I2C1_SDA_PIN_DEFAULT
+        int
+        default 90 if RT_USING_SOFT_I2C1
 
 endmenu
 

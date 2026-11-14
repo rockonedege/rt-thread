@@ -1,26 +1,41 @@
 /*!
- * @file       apm32f10x_bakpr.c
+ * @file        apm32f10x_bakpr.c
  *
- * @brief      This file provides all the BAKPR firmware functions.
+ * @brief       This file provides all the BAKPR firmware functions.
  *
- * @version    V1.0.1
+ * @version     V1.0.4
  *
- * @date       2021-03-23
+ * @date        2022-12-01
  *
+ * @attention
+ *
+ *  Copyright (C) 2020-2022 Geehy Semiconductor
+ *
+ *  You may not use this file except in compliance with the
+ *  GEEHY COPYRIGHT NOTICE (GEEHY SOFTWARE PACKAGE LICENSE).
+ *
+ *  The program is only for reference, which is distributed in the hope
+ *  that it will be useful and instructional for customers to develop
+ *  their software. Unless required by applicable law or agreed to in
+ *  writing, the program is distributed on an "AS IS" BASIS, WITHOUT
+ *  ANY WARRANTY OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the GEEHY SOFTWARE PACKAGE LICENSE for the governing permissions
+ *  and limitations under the License.
  */
 
 #include "apm32f10x_bakpr.h"
 #include "apm32f10x_rcm.h"
 
-/** @addtogroup Peripherals_Library Standard Peripheral Library
+/** @addtogroup APM32F10x_StdPeriphDriver
   @{
 */
 
-/** @addtogroup BAKPR_Driver ADC Driver
+/** @addtogroup BAKPR_Driver BAKPR Driver
+  * @brief BAKPR driver modules
   @{
 */
 
-/** @addtogroup BAKPR_Fuctions Fuctions
+/** @defgroup BAKPR_Functions Functions
   @{
 */
 
@@ -114,16 +129,19 @@ void BAKPR_DisableInterrupt(void)
  */
 void BAKPR_ConfigRTCOutput(BAKPR_RTC_OUTPUT_SOURCE_T soure)
 {
-    if(soure == BAKPR_RTC_OUTPUT_SOURCE_NONE)
+    if (soure == BAKPR_RTC_OUTPUT_SOURCE_NONE)
     {
         BAKPR->CLKCAL = RESET;
-    } else if(soure == BAKPR_RTC_OUTPUT_SOURCE_CALIBRATION_CLOCK)
+    }
+    else if (soure == BAKPR_RTC_OUTPUT_SOURCE_CALIBRATION_CLOCK)
     {
         BAKPR->CLKCAL_B.CALCOEN = BIT_SET;
-    } else if(soure == BAKPR_RTC_OUTPUT_SOURCE_ALARM)
+    }
+    else if (soure == BAKPR_RTC_OUTPUT_SOURCE_ALARM)
     {
         BAKPR->CLKCAL_B.ASPOEN = BIT_SET;
-    } else if(soure == BAKPR_RTC_OUTPUT_SOURCE_SECOND)
+    }
+    else if (soure == BAKPR_RTC_OUTPUT_SOURCE_SECOND)
     {
         BAKPR->CLKCAL_B.ASPOSEL = BIT_SET;
     }
@@ -160,7 +178,7 @@ void BAKPR_ConfigBackupRegister(BAKPR_DATA_T bakrData, uint16_t data)
     tmp = (uint32_t)BAKPR_BASE;
     tmp += bakrData;
 
-    *(__IOM uint32_t *) tmp = data;
+    *(__IOM uint32_t*) tmp = data;
 }
 
 /*!
@@ -178,7 +196,7 @@ uint16_t BAKPR_ReadBackupRegister(BAKPR_DATA_T bakrData)
     tmp = (uint32_t)BAKPR_BASE;
     tmp += bakrData;
 
-    return (*(__IOM uint32_t *) tmp);
+    return (*(__IOM uint32_t*) tmp);
 }
 
 /*!
@@ -229,6 +247,6 @@ void BAKPR_ClearIntFlag(void)
     BAKPR->CSTS_B.TICLR = BIT_SET;
 }
 
-/**@} end of group BAKPR_Fuctions*/
+/**@} end of group BAKPR_Functions*/
 /**@} end of group BAKPR_Driver*/
-/**@} end of group Peripherals_Library*/
+/**@} end of group APM32F10x_StdPeriphDriver */

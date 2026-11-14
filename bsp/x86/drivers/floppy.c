@@ -6,6 +6,7 @@
  * Change Logs:
  */
 #include <rtthread.h>
+#include <rtdevice.h>
 #include <rthw.h>
 
 #include <bsp.h>
@@ -264,7 +265,7 @@ static rt_err_t rt_floppy_close(rt_device_t dev)
  * buffer:
  * size  : how many blocks
  */
-static rt_size_t rt_floppy_read(rt_device_t device, rt_off_t position, void *buffer, rt_size_t size)
+static rt_ssize_t rt_floppy_read(rt_device_t device, rt_off_t position, void *buffer, rt_size_t size)
 {
     rt_size_t doSize = size;
 
@@ -300,7 +301,7 @@ static rt_size_t rt_floppy_read(rt_device_t device, rt_off_t position, void *buf
  * buffer:
  * size  : how many blocks
  */
-static rt_size_t rt_floppy_write(rt_device_t device, rt_off_t position, const void *buffer, rt_size_t size)
+static rt_ssize_t rt_floppy_write(rt_device_t device, rt_off_t position, const void *buffer, rt_size_t size)
 {
     rt_mutex_take(&lock, RT_WAITING_FOREVER);
     panic("FIXME:I don't know how!\n");
@@ -339,7 +340,7 @@ void rt_floppy_init(void)
 {
     struct rt_device *device;
 
-    rt_mutex_init(&lock,"fdlock", RT_IPC_FLAG_FIFO);
+    rt_mutex_init(&lock,"fdlock", RT_IPC_FLAG_PRIO);
     rt_sem_init(&sem, "fdsem", 0, RT_IPC_FLAG_FIFO);
 
     rt_hw_interrupt_install(FLOPPY_IRQ, rt_floppy_isr, RT_NULL, "floppy");

@@ -21,7 +21,7 @@
 #define INT_IRQ     0x00
 #define INT_FIQ     0x01
 
-extern rt_uint32_t rt_interrupt_nest;
+extern rt_atomic_t rt_interrupt_nest;
 
 rt_uint32_t rt_interrupt_from_thread, rt_interrupt_to_thread;
 rt_uint32_t rt_thread_switch_interrupt_flag;
@@ -106,8 +106,11 @@ void rt_hw_interrupt_init(void)
 {
     int i;
 
-    *((volatile unsigned int *)REG_AIC_INTDIS0) = 0xFFFFFFFF;   // disable all interrupt channel
-    *((volatile unsigned int *)REG_AIC_INTDIS1) = 0xFFFFFFFF;   // disable all interrupt channel
+    outpw(REG_AIC_INTDIS0, 0xFFFFFFFF); // disable all interrupt channel
+    outpw(REG_AIC_INTDIS1, 0xFFFFFFFF); // disable all interrupt channel
+
+    outpw(REG_AIC_EOIS, 1);     // resetand restart AIC's IRQ processing
+    outpw(REG_AIC_EOFS, 1);     // resetand restart AIC's IRQ processing
 
     /* init interrupt nest, and context in thread sp */
     rt_interrupt_nest               = 0;
@@ -223,7 +226,7 @@ void machine_shutdown(void)
 
 void nu_sys_ip_reset(E_SYS_IPRST eIPRstIdx)
 {
-    uint32_t u32IPRSTRegAddr;
+    uint32_t volatile u32IPRSTRegAddr;
     uint32_t u32IPRSTRegBit;
     rt_uint32_t level;
 
@@ -236,11 +239,20 @@ void nu_sys_ip_reset(E_SYS_IPRST eIPRstIdx)
     /* Enter critical section */
     level = rt_hw_interrupt_disable();
 
+    /* Unlock write-protect */
+    SYS_UnlockReg();
+
     /* Enable IP reset */
     outpw(u32IPRSTRegAddr, inpw(u32IPRSTRegAddr) | (1 << u32IPRSTRegBit));
 
     /* Disable IP reset */
     outpw(u32IPRSTRegAddr, inpw(u32IPRSTRegAddr) & ~(1 << u32IPRSTRegBit));
+
+    /* Wait it done. */
+    while (inpw(u32IPRSTRegAddr) & (1 << u32IPRSTRegBit)) {}
+
+    /* Lock write protect */
+    SYS_LockReg();
 
     /* Leave critical section */
     rt_hw_interrupt_enable(level);
@@ -248,7 +260,7 @@ void nu_sys_ip_reset(E_SYS_IPRST eIPRstIdx)
 
 static void _nu_sys_ipclk(E_SYS_IPCLK eIPClkIdx, uint32_t bEnable)
 {
-    uint32_t u32IPCLKRegAddr;
+    uint32_t volatile u32IPCLKRegAddr;
     uint32_t u32IPCLKRegBit;
     rt_uint32_t level;
 
@@ -261,6 +273,8 @@ static void _nu_sys_ipclk(E_SYS_IPCLK eIPClkIdx, uint32_t bEnable)
     /* Enter critical section */
     level = rt_hw_interrupt_disable();
 
+    SYS_UnlockReg();
+
     if (bEnable)
     {
         /* Enable IP CLK */
@@ -271,6 +285,8 @@ static void _nu_sys_ipclk(E_SYS_IPCLK eIPClkIdx, uint32_t bEnable)
         /* Disable IP CLK */
         outpw(u32IPCLKRegAddr, inpw(u32IPCLKRegAddr) & ~(1 << u32IPCLKRegBit));
     }
+
+    SYS_LockReg();
 
     /* Leave critical section */
     rt_hw_interrupt_enable(level);
@@ -302,7 +318,6 @@ E_SYS_USB0_ID nu_sys_usb0_role(void)
 #ifdef RT_USING_FINSH
 
 #include <finsh.h>
-FINSH_FUNCTION_EXPORT_ALIAS(rt_hw_cpu_reset, reset, restart the system);
 
 #ifdef FINSH_USING_MSH
 int cmd_reset(int argc, char **argv)

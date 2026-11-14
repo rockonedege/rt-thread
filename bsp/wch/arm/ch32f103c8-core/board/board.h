@@ -26,7 +26,7 @@ extern "C" {
 #define CH32_SRAM_SIZE      20
 #define CH32_SRAM_END       (0x20000000 + CH32_SRAM_SIZE * 1024)
 
-#if defined(__CC_ARM) || defined(__CLANG_ARM)
+#if defined(__ARMCC_VERSION)
 extern int Image$$RW_IRAM1$$ZI$$Limit;
 #define HEAP_BEGIN      ((void *)&Image$$RW_IRAM1$$ZI$$Limit)
 #elif __ICCARM__
@@ -64,8 +64,8 @@ void ch32f1_i2c_config(I2C_TypeDef* i2cx);
 void ch32f1_tim_clock_init(TIM_TypeDef *timx);
 rt_uint32_t ch32f1_tim_clock_get(TIM_TypeDef *timx);
 
-#ifdef BSP_USING_HWTIMER
-struct rt_hwtimer_info* ch32f1_hwtimer_info_config_get(TIM_TypeDef *timx);
+#ifdef BSP_USING_CLOCK_TIMER
+struct rt_clock_timer_info* ch32f1_clock_timer_info_config_get(TIM_TypeDef *timx);
 #endif
 
 #ifdef BSP_USING_PWM

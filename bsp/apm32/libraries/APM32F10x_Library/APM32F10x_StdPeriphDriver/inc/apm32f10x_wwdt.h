@@ -3,35 +3,51 @@
  *
  * @brief       This file contains all the functions prototypes for the WWDT firmware library
  *
- * @version     V1.0.1
+ * @version     V1.0.4
  *
- * @date        2021-03-23
+ * @date        2022-12-01
  *
+ * @attention
+ *
+ *  Copyright (C) 2020-2022 Geehy Semiconductor
+ *
+ *  You may not use this file except in compliance with the
+ *  GEEHY COPYRIGHT NOTICE (GEEHY SOFTWARE PACKAGE LICENSE).
+ *
+ *  The program is only for reference, which is distributed in the hope
+ *  that it will be useful and instructional for customers to develop
+ *  their software. Unless required by applicable law or agreed to in
+ *  writing, the program is distributed on an "AS IS" BASIS, WITHOUT
+ *  ANY WARRANTY OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the GEEHY SOFTWARE PACKAGE LICENSE for the governing permissions
+ *  and limitations under the License.
  */
 
+/* Define to prevent recursive inclusion */
 #ifndef __APM32F10X_WWDT_H
 #define __APM32F10X_WWDT_H
 
+/* Includes */
 #include "apm32f10x.h"
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
-/** @addtogroup Peripherals_Library Standard Peripheral Library
+/** @addtogroup APM32F10x_StdPeriphDriver
   @{
 */
 
-/** @addtogroup WWDT_Driver  WWDT Driver
+/** @addtogroup WWDT_Driver WWDT Driver
   @{
 */
 
-/** @addtogroup  WWDT_Enumerations Enumerations
+/** @defgroup  WWDT_Enumerations Enumerations
   @{
 */
 
 /**
- * @brief    WWDT Timebase(Prescaler) define
+ * @brief    WWDT Timebase(Prescaler) definition
  */
 typedef enum
 {
@@ -39,37 +55,37 @@ typedef enum
     WWDT_TIME_BASE_2 = 0x00000080,
     WWDT_TIME_BASE_4 = 0x00000100,
     WWDT_TIME_BASE_8 = 0x00000180
-}WWDT_TIME_BASE_T;
+} WWDT_TIME_BASE_T;
 
-/**@} end of group WWDT_Enumerations*/
+/**@} end of group WWDT_Enumerations */
 
-/** @addtogroup  WWDT_Fuctions Fuctions
+/** @defgroup  WWDT_Functions Functions
   @{
 */
 
-/** WWDT reset */
+/* WWDT reset */
 void WWDT_Reset(void);
 
-/** Config WWDT Timebase */
+/* Configure WWDT Timebase */
 void WWDT_ConfigTimebase(WWDT_TIME_BASE_T timeBase);
 
-/** Config Window Data */
+/* Configure Window Data */
 void WWDT_ConfigWindowData(uint8_t windowData);
 
-/** Config Couter */
+/* Configure Couter */
 void WWDT_ConfigCounter(uint8_t counter);
 
-/** Enable WWDT and Early Wakeup interrupt */
+/* Enable WWDT and Early Wakeup interrupt */
 void WWDT_EnableEWI(void);
 void WWDT_Enable(uint8_t count);
 
-/** Read Flag and Clear Flag */
+/* Read Flag and Clear Flag */
 uint8_t WWDT_ReadFlag(void);
 void WWDT_ClearFlag(void);
 
-/**@} end of group WWDT_Fuctions*/
+/**@} end of group WWDT_Functions */
 /**@} end of group WWDT_Driver */
-/**@} end of group Peripherals_Library*/
+/**@} end of group APM32F10x_StdPeriphDriver */
 
 #ifdef __cplusplus
 }

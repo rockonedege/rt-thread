@@ -7,12 +7,13 @@
  * Date           Author       Notes
  * 2021-02-13     Meco Man     implement exit() and abort()
  */
+
 #include <rtthread.h>
+#include <posix/stdlib.h>
 
 /* for exit() and abort() */
 void __exit (int status)
 {
-    extern void __rt_libc_exit(int status);
     __rt_libc_exit(status);
     while(1);
 }

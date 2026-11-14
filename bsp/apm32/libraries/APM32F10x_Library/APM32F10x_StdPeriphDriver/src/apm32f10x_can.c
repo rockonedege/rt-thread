@@ -1,26 +1,41 @@
 /*!
- * @file       apm32f10x_can.c
+ * @file        apm32f10x_can.c
  *
- * @brief      This file provides all the CAN firmware functions
+ * @brief       This file provides all the CAN firmware functions
  *
- * @version    V1.0.1
+ * @version     V1.0.4
  *
- * @date       2021-03-23
+ * @date        2022-12-01
  *
+ * @attention
+ *
+ *  Copyright (C) 2020-2022 Geehy Semiconductor
+ *
+ *  You may not use this file except in compliance with the
+ *  GEEHY COPYRIGHT NOTICE (GEEHY SOFTWARE PACKAGE LICENSE).
+ *
+ *  The program is only for reference, which is distributed in the hope
+ *  that it will be useful and instructional for customers to develop
+ *  their software. Unless required by applicable law or agreed to in
+ *  writing, the program is distributed on an "AS IS" BASIS, WITHOUT
+ *  ANY WARRANTY OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the GEEHY SOFTWARE PACKAGE LICENSE for the governing permissions
+ *  and limitations under the License.
  */
 
 #include "apm32f10x_can.h"
 #include "apm32f10x_rcm.h"
 
-/** @addtogroup Peripherals_Library Standard Peripheral Library
+/** @addtogroup APM32F10x_StdPeriphDriver
   @{
 */
 
 /** @addtogroup CAN_Driver CAN Driver
+  * @brief CAN driver modules
   @{
 */
 
-/** @addtogroup CAN_Fuctions Fuctions
+/** @defgroup CAN_Functions Functions
   @{
 */
 
@@ -63,33 +78,24 @@ uint8_t CAN_Config(CAN_T* can, CAN_Config_T* canConfig)
     uint8_t  initStatus = ERROR;
     uint32_t wait_ack = 0x00000000;
 
-    /** Exit from sleep mode */
+    /* Exit from sleep mode */
     can->MCTRL_B.SLEEPREQ = BIT_RESET;
-    /** Request initialisation */
+    /* Request initialisation */
     can->MCTRL_B.INITREQ = BIT_SET;
 
-    /** Wait the acknowledge */
-    while(((can->MSTS_B.INITFLG) != BIT_SET) && (wait_ack != 0x0000FFFF))
+    /* Wait the acknowledge */
+    while (((can->MSTS_B.INITFLG) != BIT_SET) && (wait_ack != 0x0000FFFF))
     {
         wait_ack++;
     }
-    /** Check acknowledge */
-    if(((can->MSTS_B.INITFLG) != BIT_SET))
+    /* Check acknowledge */
+    if (((can->MSTS_B.INITFLG) != BIT_SET))
     {
         initStatus = ERROR;
     }
     else
     {
-        if(canConfig->timeTrigComMode == ENABLE)
-        {
-            can->MCTRL_B.TTCM = BIT_SET;
-        }
-        else
-        {
-            can->MCTRL_B.TTCM = BIT_RESET;
-        }
-
-        if(canConfig->autoBusOffManage == ENABLE)
+        if (canConfig->autoBusOffManage == ENABLE)
         {
             can->MCTRL_B.ALBOFFM = BIT_SET;
         }
@@ -98,7 +104,7 @@ uint8_t CAN_Config(CAN_T* can, CAN_Config_T* canConfig)
             can->MCTRL_B.ALBOFFM = BIT_RESET;
         }
 
-        if(canConfig->autoWakeUpMode == ENABLE)
+        if (canConfig->autoWakeUpMode == ENABLE)
         {
             can->MCTRL_B.AWUPCFG = BIT_SET;
         }
@@ -107,7 +113,7 @@ uint8_t CAN_Config(CAN_T* can, CAN_Config_T* canConfig)
             can->MCTRL_B.AWUPCFG = BIT_RESET;
         }
 
-        if(canConfig->nonAutoRetran == ENABLE)
+        if (canConfig->nonAutoRetran == ENABLE)
         {
             can->MCTRL_B.ARTXMD = BIT_SET;
         }
@@ -116,7 +122,7 @@ uint8_t CAN_Config(CAN_T* can, CAN_Config_T* canConfig)
             can->MCTRL_B.ARTXMD = BIT_RESET;
         }
 
-        if(canConfig->rxFIFOLockMode == ENABLE)
+        if (canConfig->rxFIFOLockMode == ENABLE)
         {
             can->MCTRL_B.RXFLOCK = BIT_SET;
         }
@@ -125,7 +131,7 @@ uint8_t CAN_Config(CAN_T* can, CAN_Config_T* canConfig)
             can->MCTRL_B.RXFLOCK = BIT_RESET;
         }
 
-        if(canConfig->txFIFOPriority == ENABLE)
+        if (canConfig->txFIFOPriority == ENABLE)
         {
             can->MCTRL_B.TXFPCFG = BIT_SET;
         }
@@ -134,7 +140,7 @@ uint8_t CAN_Config(CAN_T* can, CAN_Config_T* canConfig)
             can->MCTRL_B.TXFPCFG = BIT_RESET;
         }
 
-        /** Set the bit timing register */
+        /* Set the bit timing register */
         can->BITTIM &= (uint32_t)0x3fffffff;
         can->BITTIM |= (uint32_t)canConfig->mode << 30;
         can->BITTIM_B.RSYNJW  = canConfig->syncJumpWidth;
@@ -142,17 +148,17 @@ uint8_t CAN_Config(CAN_T* can, CAN_Config_T* canConfig)
         can->BITTIM_B.TIMSEG2 = canConfig->timeSegment2;
         can->BITTIM_B.BRPSC   = canConfig->prescaler - 1;
 
-        /** Request leave initialisation */
+        /* Request leave initialisation */
         can->MCTRL_B.INITREQ = BIT_RESET;
 
         wait_ack = 0;
-        /** Wait the acknowledge */
-        while(((can->MSTS_B.INITFLG) != BIT_RESET) && (wait_ack != 0x0000FFFF))
+        /* Wait the acknowledge */
+        while (((can->MSTS_B.INITFLG) != BIT_RESET) && (wait_ack != 0x0000FFFF))
         {
             wait_ack++;
         }
-        /** Check acknowledge */
-        if(((can->MSTS_B.INITFLG) != BIT_RESET))
+        /* Check acknowledge */
+        if (((can->MSTS_B.INITFLG) != BIT_RESET))
         {
             initStatus = ERROR;
         }
@@ -164,27 +170,113 @@ uint8_t CAN_Config(CAN_T* can, CAN_Config_T* canConfig)
     return initStatus;
 }
 
+#if defined(APM32F10X_CL)
+/*!
+ * @brief     Congig the CAN peripheral according to the specified parameters in the filterConfig.
+ *
+ * @param     filterConfig :Point to a CAN_FilterConfig_T structure.
+ *
+ * @retval    None
+ *
+ * @note      This function is for CAN1 and CAN2.
+ */
+void CAN_ConfigFilter(CAN_FilterConfig_T* filterConfig)
+{
+    CAN1->FCTRL_B.FINITEN = BIT_SET;
+
+    CAN1->FACT &= ~(1 << filterConfig->filterNumber);
+
+    /* Filter Scale */
+    if (filterConfig->filterScale == CAN_FILTER_SCALE_16BIT)
+    {
+        /* 16-bit scale for the filter */
+        CAN1->FSCFG &= ~(1 << filterConfig->filterNumber);
+
+        CAN1->sFilterRegister[filterConfig->filterNumber].FBANK1 =
+            ((0x0000FFFF & filterConfig->filterMaskIdLow) << 16) |
+            (0x0000FFFF & filterConfig->filterIdLow);
+
+        CAN1->sFilterRegister[filterConfig->filterNumber].FBANK2 =
+            ((0x0000FFFF & filterConfig->filterMaskIdHigh) << 16) |
+            (0x0000FFFF & filterConfig->filterIdHigh);
+    }
+
+    if (filterConfig->filterScale == CAN_FILTER_SCALE_32BIT)
+    {
+        CAN1->FSCFG |= (1 << filterConfig->filterNumber);
+
+        CAN1->sFilterRegister[filterConfig->filterNumber].FBANK1 =
+            ((0x0000FFFF & filterConfig->filterIdHigh) << 16) |
+            (0x0000FFFF & filterConfig->filterIdLow);
+
+        CAN1->sFilterRegister[filterConfig->filterNumber].FBANK2 =
+            ((0x0000FFFF & filterConfig->filterMaskIdHigh) << 16) |
+            (0x0000FFFF & filterConfig->filterMaskIdLow);
+    }
+
+    /* Filter Mode */
+    if (filterConfig->filterMode == CAN_FILTER_MODE_IDMASK)
+    {
+        CAN1->FMCFG &= ~(1 << filterConfig->filterNumber);
+    }
+    else
+    {
+        CAN1->FMCFG |= (1 << filterConfig->filterNumber);
+    }
+
+    /* Filter FIFO assignment */
+    if (filterConfig->filterFIFO == CAN_FILTER_FIFO_0)
+    {
+        CAN1->FFASS &= ~(1 << filterConfig->filterNumber);
+    }
+    if (filterConfig->filterFIFO == CAN_FILTER_FIFO_1)
+    {
+        CAN1->FFASS |= (1 << filterConfig->filterNumber);
+    }
+
+    /* Filter activation */
+    if (filterConfig->filterActivation == ENABLE)
+    {
+        CAN1->FACT |= (1 << filterConfig->filterNumber);
+    }
+    CAN1->FCTRL_B.FINITEN = BIT_RESET;
+}
+
+/*!
+ * @brief     Select the start bank filter for slave CAN.
+ *
+ * @param     bankNum: the start slave bank filter from 1..27.
+ *
+ * @retval    None
+ */
+void CAN_SlaveStartBank(uint8_t bankNum)
+{
+    CAN1->FCTRL_B.FINITEN = SET;
+    CAN1->FCTRL_B.CAN2BN  = bankNum;
+    CAN1->FCTRL_B.FINITEN = RESET;
+}
+#else
 /*!
  * @brief     Congig the CAN peripheral according to the specified parameters in the filterConfig.
  *
  * @param     can: Select the CAN peripheral which can be CAN1 or CAN2.
  *
- * @param     filterConfig :Point to a CAN_FILTER_CONFIG_T structure.
+ * @param     filterConfig :Point to a CAN_FilterConfig_T structure.
  *
  * @retval    None
  *
  * @note      CAN2 applies only to APM32F103xC device.
  */
-void CAN_ConfigFilter(CAN_T* can, CAN_FILTER_CONFIG_T* filterConfig)
+void CAN_ConfigFilter(CAN_T* can, CAN_FilterConfig_T* filterConfig)
 {
     can->FCTRL_B.FINITEN = BIT_SET;
 
     can->FACT &= ~(1 << filterConfig->filterNumber);
 
-    /** Filter Scale */
-    if(filterConfig->filterScale == CAN_FILTER_SCALE_16BIT)
+    /* Filter Scale */
+    if (filterConfig->filterScale == CAN_FILTER_SCALE_16BIT)
     {
-        /** 16-bit scale for the filter */
+        /* 16-bit scale for the filter */
         can->FSCFG &= ~(1 << filterConfig->filterNumber);
 
         can->sFilterRegister[filterConfig->filterNumber].FBANK1 =
@@ -196,7 +288,7 @@ void CAN_ConfigFilter(CAN_T* can, CAN_FILTER_CONFIG_T* filterConfig)
             (0x0000FFFF & filterConfig->filterIdHigh);
     }
 
-    if(filterConfig->filterScale == CAN_FILTER_SCALE_32BIT)
+    if (filterConfig->filterScale == CAN_FILTER_SCALE_32BIT)
     {
         can->FSCFG |= (1 << filterConfig->filterNumber);
 
@@ -209,8 +301,8 @@ void CAN_ConfigFilter(CAN_T* can, CAN_FILTER_CONFIG_T* filterConfig)
             (0x0000FFFF & filterConfig->filterMaskIdLow);
     }
 
-    /** Filter Mode */
-    if(filterConfig->filterMode == CAN_FILTER_MODE_IDMASK)
+    /* Filter Mode */
+    if (filterConfig->filterMode == CAN_FILTER_MODE_IDMASK)
     {
         can->FMCFG &= ~(1 << filterConfig->filterNumber);
     }
@@ -219,23 +311,24 @@ void CAN_ConfigFilter(CAN_T* can, CAN_FILTER_CONFIG_T* filterConfig)
         can->FMCFG |= (1 << filterConfig->filterNumber);
     }
 
-    /** Filter FIFO assignment */
-    if(filterConfig->filterFIFO == CAN_FILTER_FIFO_0)
+    /* Filter FIFO assignment */
+    if (filterConfig->filterFIFO == CAN_FILTER_FIFO_0)
     {
         can->FFASS &= ~(1 << filterConfig->filterNumber);
     }
-    if(filterConfig->filterFIFO == CAN_FILTER_FIFO_1)
+    if (filterConfig->filterFIFO == CAN_FILTER_FIFO_1)
     {
         can->FFASS |= (1 << filterConfig->filterNumber);
     }
 
-    /** Filter activation */
-    if(filterConfig->filterActivation == ENABLE)
+    /* Filter activation */
+    if (filterConfig->filterActivation == ENABLE)
     {
         can->FACT |= (1 << filterConfig->filterNumber);
     }
     can->FCTRL_B.FINITEN = BIT_RESET;
 }
+#endif
 
 /*!
  * @brief     Initialize a CAN_Config_T structure with the initial value.
@@ -248,7 +341,6 @@ void CAN_ConfigFilter(CAN_T* can, CAN_FILTER_CONFIG_T* filterConfig)
  */
 void CAN_ConfigStructInit(CAN_Config_T* canConfig)
 {
-    canConfig->timeTrigComMode  = DISABLE;
     canConfig->autoBusOffManage = DISABLE;
     canConfig->autoWakeUpMode   = DISABLE;
     canConfig->nonAutoRetran    = DISABLE;
@@ -290,94 +382,60 @@ void CAN_DisableDBGFreeze(CAN_T* can)
 }
 
 /*!
- * @brief     Enables the CAN Time TriggerOperation communication mode.
- *
- * @param     can: Select the CAN peripheral.
- *
- * @retval    None
- *
- * @note      CAN2 applies only to APM32F103xC device.
- */
-void CAN_EnableTTCComMode(CAN_T* can)
-{
-    can->MCTRL_B.TTCM = ENABLE;
-
-    can->sTxMailBox[0].TXDLEN_B.TXTS = BIT_SET;
-    can->sTxMailBox[1].TXDLEN_B.TXTS = BIT_SET;
-    can->sTxMailBox[2].TXDLEN_B.TXTS = BIT_SET;
-}
-
-/*!
- * @brief     Disable the CAN Time TriggerOperation communication mode.
- *
- * @param     can: Select the CAN peripheral.
- *
- * @retval    None
- *
- * @note      CAN2 applies only to APM32F103xC device.
- */
-void CAN_DisableTTCComMode(CAN_T* can)
-{
-    can->MCTRL_B.TTCM = DISABLE;
-
-    can->sTxMailBox[0].TXDLEN_B.TXTS = BIT_RESET;
-    can->sTxMailBox[1].TXDLEN_B.TXTS = BIT_RESET;
-    can->sTxMailBox[2].TXDLEN_B.TXTS = BIT_RESET;
-}
-
-/*!
  * @brief     Initiates the transmission of a message.
  *
  * @param     can: Select the CAN peripheral.
  *
- * @param     TxMessage: pointer to a CAN_TX_MESSAGE_T structure.
+ * @param     TxMessage: pointer to a CAN_TxMessage_T structure.
  *
  * @retval    The number of the mailbox which is used for transmission or 3 if No mailbox is empty.
  *
  * @note      CAN2 applies only to APM32F103xC device.
  */
-uint8_t CAN_TxMessage(CAN_T* can, CAN_TX_MESSAGE_T* TxMessage)
+uint8_t CAN_TxMessage(CAN_T* can, CAN_TxMessage_T* TxMessage)
 {
     uint8_t transmit_milbox = 0;
 
-    /** Select one empty transmit mailbox */
-    if((can->TXSTS & 0x04000000) == 0x04000000)
+    /* Select one empty transmit mailbox */
+    if ((can->TXSTS & 0x04000000) == 0x04000000)
     {
         transmit_milbox = 0;
     }
-    else if((can->TXSTS & 0x08000000) == 0x08000000)
+    else if ((can->TXSTS & 0x08000000) == 0x08000000)
     {
         transmit_milbox = 1;
     }
-    else if((can->TXSTS & 0x10000000) == 0x10000000)
+    else if ((can->TXSTS & 0x10000000) == 0x10000000)
     {
         transmit_milbox = 2;
-    } else
+    }
+    else
     {
         return 3;  //!< No mailbox is empty
     }
 
-    /** Set up the Id */
+    /* Set up the Id */
     can->sTxMailBox[transmit_milbox].TXMID &= 0x00000001;
-    if(TxMessage->typeID == CAN_TYPEID_STD)
+    if (TxMessage->typeID == CAN_TYPEID_STD)
     {
         can->sTxMailBox[transmit_milbox].TXMID |= (TxMessage->stdID << 21) | (TxMessage->remoteTxReq);
-    } else
+    }
+    else
     {
         can->sTxMailBox[transmit_milbox].TXMID |= (TxMessage->extID << 3) | (TxMessage->typeID) | (TxMessage->remoteTxReq);
     }
 
-    /** Set up the TXDLEN */
+    /* Set up the TXDLEN */
     TxMessage->dataLengthCode &= 0x0F;
     can->sTxMailBox[transmit_milbox].TXDLEN &= (uint32_t)0xFFFFFFF0;
     can->sTxMailBox[transmit_milbox].TXDLEN |= TxMessage->dataLengthCode;
 
-    /** Set up the data field */
+    /* Set up the data field */
     can->sTxMailBox[transmit_milbox].TXMDL = ((uint32_t)TxMessage->data[3] << 24) | ((uint32_t)TxMessage->data[2] << 16)
             | ((uint32_t)TxMessage->data[1] << 8) | ((uint32_t)TxMessage->data[0]);
     can->sTxMailBox[transmit_milbox].TXMDH = ((uint32_t)TxMessage->data[7] << 24) | ((uint32_t)TxMessage->data[6] << 16)
             | ((uint32_t)TxMessage->data[5] << 8) | ((uint32_t)TxMessage->data[4]);
-    /** Request transmission */
+    /* Request transmission */
     can->sTxMailBox[transmit_milbox].TXMID |= 0x00000001;
 
     return transmit_milbox;
@@ -403,39 +461,47 @@ uint8_t CAN_TxMessageStatus(CAN_T* can, CAN_TX_MAILBIX_T TxMailbox)
     switch (TxMailbox)
     {
         case (CAN_TX_MAILBIX_0):
-            state =   can->TXSTS &  (0x00000001 | 0x00000002 | 0x04000000);
-        break;
+            state =   can->TXSTS & (0x00000001 | 0x00000002 | 0x04000000);
+            break;
         case (CAN_TX_MAILBIX_1):
-            state =   can->TXSTS &  (0x00000100 | 0x00000200 | 0x08000000);
-        break;
+            state =   can->TXSTS & (0x00000100 | 0x00000200 | 0x08000000);
+            break;
         case (CAN_TX_MAILBIX_2):
-            state =   can->TXSTS &  (0x00010000 | 0x00020000 | 0x10000000);
-        break;
+            state =   can->TXSTS & (0x00010000 | 0x00020000 | 0x10000000);
+            break;
         default:
             state = 0;
-        break;
+            break;
     }
     switch (state)
     {
-        /** transmit pending  */
-        case (0x0): state = 2;
-        break;
-        /* transmit failed  */
-        case (0x00000001 | 0x04000000): state = 0;
-        break;
-        case (0x00000100 | 0x08000000): state = 0;
-        break;
-        case (0x00010000 | 0x10000000): state = 0;
-        break;
-        /* transmit succeeded  */
-        case (0x00000001 | 0x00000002 | 0x04000000):state = 1;
-        break;
-        case (0x00000100 | 0x00000200 | 0x08000000):state = 1;
-        break;
-        case (0x00010000 | 0x00020000 | 0x10000000):state = 1;
-        break;
-        default: state = 0;
-        break;
+        /* Transmit pending  */
+        case (0x0):
+            state = 2;
+            break;
+        /* Transmit failed  */
+        case (0x00000001 | 0x04000000):
+            state = 0;
+            break;
+        case (0x00000100 | 0x08000000):
+            state = 0;
+            break;
+        case (0x00010000 | 0x10000000):
+            state = 0;
+            break;
+        /* Transmit succeeded  */
+        case (0x00000001 | 0x00000002 | 0x04000000):
+            state = 1;
+            break;
+        case (0x00000100 | 0x00000200 | 0x08000000):
+            state = 1;
+            break;
+        case (0x00010000 | 0x00020000 | 0x10000000):
+            state = 1;
+            break;
+        default:
+            state = 0;
+            break;
     }
     return (uint8_t) state;
 }
@@ -459,22 +525,22 @@ void CAN_CancelTxMailbox(CAN_T* can, CAN_TX_MAILBIX_T TxMailbox)
 {
     switch (TxMailbox)
     {
-    case CAN_TX_MAILBIX_0:
-        can->TXSTS_B.ABREQFLG0 = BIT_SET;
-        break;
-    case CAN_TX_MAILBIX_1:
-        can->TXSTS_B.ABREQFLG1 = BIT_SET;
-        break;
-    case CAN_TX_MAILBIX_2:
-        can->TXSTS_B.ABREQFLG2 = BIT_SET;
-        break;
-    default:
-        break;
+        case CAN_TX_MAILBIX_0:
+            can->TXSTS_B.ABREQFLG0 = BIT_SET;
+            break;
+        case CAN_TX_MAILBIX_1:
+            can->TXSTS_B.ABREQFLG1 = BIT_SET;
+            break;
+        case CAN_TX_MAILBIX_2:
+            can->TXSTS_B.ABREQFLG2 = BIT_SET;
+            break;
+        default:
+            break;
     }
 }
 
 /*!
- * @brief     Receives a message and save to a CAN_RX_MESSAGE_T structure.
+ * @brief     Receives a message and save to a CAN_RxMessage_T structure.
  *
  * @param     can: Select the CAN peripheral.
  *
@@ -489,11 +555,11 @@ void CAN_CancelTxMailbox(CAN_T* can, CAN_TX_MAILBIX_T TxMailbox)
  *
  * @note      CAN2 applies only to APM32F103xC device.
  */
-void CAN_RxMessage(CAN_T* can, CAN_RX_FIFO_T FIFONumber, CAN_RX_MESSAGE_T* RxMessage)
+void CAN_RxMessage(CAN_T* can, CAN_RX_FIFO_T FIFONumber, CAN_RxMessage_T* RxMessage)
 {
     /* Get the Id */
     RxMessage->typeID = ((uint8_t)0x04 & (can->sRxMailBox[FIFONumber].RXMID));
-    if(RxMessage->typeID == CAN_TYPEID_STD)
+    if (RxMessage->typeID == CAN_TYPEID_STD)
     {
         RxMessage->stdID = (can->sRxMailBox[FIFONumber].RXMID >> 21) & 0x000007FF;
     }
@@ -505,17 +571,17 @@ void CAN_RxMessage(CAN_T* can, CAN_RX_FIFO_T FIFONumber, CAN_RX_MESSAGE_T* RxMes
     RxMessage->remoteTxReq = can->sRxMailBox[FIFONumber].RXMID_B.RFTXREQ;
     RxMessage->dataLengthCode = can->sRxMailBox[FIFONumber].RXDLEN_B.DLCODE;
     RxMessage->filterMatchIndex = can->sRxMailBox[FIFONumber].RXDLEN_B.FMIDX;
-    /** Get the data field */
-    RxMessage->data[0] = can->sRxMailBox[FIFONumber].RXMDL_B.DATABYTE1;
-    RxMessage->data[1] = can->sRxMailBox[FIFONumber].RXMDL_B.DATABYTE2;
-    RxMessage->data[2] = can->sRxMailBox[FIFONumber].RXMDL_B.DATABYTE3;
-    RxMessage->data[3] = can->sRxMailBox[FIFONumber].RXMDL_B.DATABYTE4;
-    RxMessage->data[4] = can->sRxMailBox[FIFONumber].RXMDH_B.DATABYTE5;
-    RxMessage->data[5] = can->sRxMailBox[FIFONumber].RXMDH_B.DATABYTE6;
-    RxMessage->data[6] = can->sRxMailBox[FIFONumber].RXMDH_B.DATABYTE7;
-    RxMessage->data[7] = can->sRxMailBox[FIFONumber].RXMDH_B.DATABYTE8;
+    /* Get the data field */
+    RxMessage->data[0] = can->sRxMailBox[FIFONumber].RXMDL_B.DATABYTE0;
+    RxMessage->data[1] = can->sRxMailBox[FIFONumber].RXMDL_B.DATABYTE1;
+    RxMessage->data[2] = can->sRxMailBox[FIFONumber].RXMDL_B.DATABYTE2;
+    RxMessage->data[3] = can->sRxMailBox[FIFONumber].RXMDL_B.DATABYTE3;
+    RxMessage->data[4] = can->sRxMailBox[FIFONumber].RXMDH_B.DATABYTE4;
+    RxMessage->data[5] = can->sRxMailBox[FIFONumber].RXMDH_B.DATABYTE5;
+    RxMessage->data[6] = can->sRxMailBox[FIFONumber].RXMDH_B.DATABYTE6;
+    RxMessage->data[7] = can->sRxMailBox[FIFONumber].RXMDH_B.DATABYTE7;
 
-    if(FIFONumber == CAN_RX_FIFO_0)
+    if (FIFONumber == CAN_RX_FIFO_0)
     {
         can->RXF0_B.RFOM0 = BIT_SET;
     }
@@ -541,7 +607,7 @@ void CAN_RxMessage(CAN_T* can, CAN_RX_FIFO_T FIFONumber, CAN_RX_MESSAGE_T* RxMes
  */
 void CAN_ReleaseFIFO(CAN_T* can, CAN_RX_FIFO_T FIFONumber)
 {
-    if(FIFONumber == CAN_RX_FIFO_0)
+    if (FIFONumber == CAN_RX_FIFO_0)
     {
         can->RXF0_B.RFOM0 = BIT_SET;
     }
@@ -567,7 +633,7 @@ void CAN_ReleaseFIFO(CAN_T* can, CAN_RX_FIFO_T FIFONumber)
  */
 uint8_t CAN_PendingMessage(CAN_T* can, CAN_RX_FIFO_T FIFONumber)
 {
-    if(FIFONumber == CAN_RX_FIFO_0)
+    if (FIFONumber == CAN_RX_FIFO_0)
     {
         return  can->RXF0 & 0x03;
     }
@@ -599,48 +665,48 @@ uint8_t CAN_OperatingMode(CAN_T* can, CAN_OPERATING_MODE_T operatingMode)
     uint8_t states = 0;
     uint32_t time_out = 0x0000FFFF;
 
-    if(operatingMode == CAN_OPERATING_MODE_INIT)
+    if (operatingMode == CAN_OPERATING_MODE_INIT)
     {
         can->MCTRL_B.SLEEPREQ = BIT_RESET;
         can->MCTRL_B.INITREQ = BIT_SET;
 
-        while((can->MSTS_B.INITFLG != BIT_SET && can->MSTS_B.SLEEPFLG != BIT_RESET) && (time_out != 0))
+        while ((can->MSTS_B.INITFLG != BIT_SET && can->MSTS_B.SLEEPFLG != BIT_RESET) && (time_out != 0))
         {
             time_out --;
         }
-        if((can->MSTS_B.INITFLG == BIT_SET && can->MSTS_B.SLEEPFLG == BIT_RESET))
+        if ((can->MSTS_B.INITFLG == BIT_SET && can->MSTS_B.SLEEPFLG == BIT_RESET))
         {
             states = 1;
         }
     }
-    else if(operatingMode == CAN_OPERATING_MODE_NORMAL)
+    else if (operatingMode == CAN_OPERATING_MODE_NORMAL)
     {
         can->MCTRL_B.SLEEPREQ = BIT_RESET;
         can->MCTRL_B.INITREQ = BIT_RESET;
 
         time_out = 0x0000FFFF;
 
-        while((can->MSTS_B.INITFLG != BIT_RESET || can->MSTS_B.SLEEPFLG != BIT_RESET) && (time_out != 0))
+        while ((can->MSTS_B.INITFLG != BIT_RESET || can->MSTS_B.SLEEPFLG != BIT_RESET) && (time_out != 0))
         {
             time_out --;
         }
-        if((can->MSTS_B.INITFLG == BIT_RESET || can->MSTS_B.SLEEPFLG == BIT_RESET))
+        if ((can->MSTS_B.INITFLG == BIT_RESET || can->MSTS_B.SLEEPFLG == BIT_RESET))
         {
             states = 1;
         }
     }
-    else if(operatingMode == CAN_OPERATING_MODE_SLEEP)
+    else if (operatingMode == CAN_OPERATING_MODE_SLEEP)
     {
         can->MCTRL_B.SLEEPREQ = BIT_SET;
         can->MCTRL_B.INITREQ = BIT_RESET;
 
         time_out = 0x0000FFFF;
 
-        while((can->MSTS_B.INITFLG != BIT_RESET && can->MSTS_B.SLEEPFLG != BIT_SET) && (time_out != 0))
+        while ((can->MSTS_B.INITFLG != BIT_RESET && can->MSTS_B.SLEEPFLG != BIT_SET) && (time_out != 0))
         {
             time_out --;
         }
-        if((can->MSTS_B.INITFLG == BIT_RESET && can->MSTS_B.SLEEPFLG == BIT_SET))
+        if ((can->MSTS_B.INITFLG == BIT_RESET && can->MSTS_B.SLEEPFLG == BIT_SET))
         {
             states = 1;
         }
@@ -664,7 +730,7 @@ uint8_t CAN_SleepMode(CAN_T* can)
     can->MCTRL_B.SLEEPREQ = BIT_SET;
     can->MCTRL_B.INITREQ = BIT_RESET;
 
-    if((can->MSTS_B.INITFLG == BIT_RESET && can->MSTS_B.SLEEPFLG == BIT_SET))
+    if ((can->MSTS_B.INITFLG == BIT_RESET && can->MSTS_B.SLEEPFLG == BIT_SET))
     {
         return 1;
     }
@@ -687,11 +753,11 @@ uint8_t CAN_WakeUpMode(CAN_T* can)
     uint32_t time_out = 0x0000FFFF;
 
     can->MCTRL_B.SLEEPREQ = BIT_RESET;
-    while((can->MSTS_B.SLEEPFLG != BIT_RESET) && (time_out != 0))
+    while ((can->MSTS_B.SLEEPFLG != BIT_RESET) && (time_out != 0))
     {
         time_out --;
     }
-    if(can->MSTS_B.SLEEPFLG == BIT_RESET)
+    if (can->MSTS_B.SLEEPFLG == BIT_RESET)
     {
         return 1;
     }
@@ -833,9 +899,9 @@ uint8_t CAN_ReadStatusFlag(CAN_T* can, CAN_FLAG_T flag)
 {
     uint8_t status = 0;
 
-    if((flag & 0x00F00000) != RESET )
+    if ((flag & 0x00F00000) != RESET)
     {
-        if((can->ERRSTS & (flag & 0x000FFFFF)) != RESET)
+        if ((can->ERRSTS & (flag & 0x000FFFFF)) != RESET)
         {
             status = SET;
         }
@@ -844,9 +910,9 @@ uint8_t CAN_ReadStatusFlag(CAN_T* can, CAN_FLAG_T flag)
             status = RESET;
         }
     }
-    else if((flag & 0x01000000) != RESET )
+    else if ((flag & 0x01000000) != RESET)
     {
-        if((can->MSTS & (flag & 0x000FFFFF)) != RESET )
+        if ((can->MSTS & (flag & 0x000FFFFF)) != RESET)
         {
             status = SET;
         }
@@ -855,9 +921,9 @@ uint8_t CAN_ReadStatusFlag(CAN_T* can, CAN_FLAG_T flag)
             status = RESET ;
         }
     }
-    else if((flag & 0x08000000) != RESET )
+    else if ((flag & 0x08000000) != RESET)
     {
-        if((can->TXSTS & (flag & 0x000FFFFF)) != RESET )
+        if ((can->TXSTS & (flag & 0x000FFFFF)) != RESET)
         {
             status = SET;
         }
@@ -866,9 +932,9 @@ uint8_t CAN_ReadStatusFlag(CAN_T* can, CAN_FLAG_T flag)
             status = RESET;
         }
     }
-    else if((flag & 0x02000000) != RESET )
+    else if ((flag & 0x02000000) != RESET)
     {
-        if((can->RXF0 & (flag & 0x000FFFFF)) != RESET )
+        if ((can->RXF0 & (flag & 0x000FFFFF)) != RESET)
         {
             status = SET;
         }
@@ -879,7 +945,7 @@ uint8_t CAN_ReadStatusFlag(CAN_T* can, CAN_FLAG_T flag)
     }
     else
     {
-        if((can->RXF1 & (flag & 0x000FFFFF)) != RESET)
+        if ((can->RXF1 & (flag & 0x000FFFFF)) != RESET)
         {
             status = SET;
         }
@@ -917,23 +983,23 @@ void CAN_ClearStatusFlag(CAN_T* can, CAN_FLAG_T flag)
 {
     uint32_t flagtmp = 0;
 
-    /** ERRSTS register */
-    if(flag == 0x30F00070)
+    /* ERRSTS register */
+    if (flag == 0x30F00070)
     {
         can->ERRSTS = RESET;
     }
     else
     {
         flagtmp = flag & 0x000FFFFF;
-        if((flag & 0x02000000) != RESET)
+        if ((flag & 0x02000000) != RESET)
         {
             can->RXF0 = flagtmp;
         }
-        else if((flag & 0x04000000) != RESET)
+        else if ((flag & 0x04000000) != RESET)
         {
             can->RXF1 = flagtmp;
         }
-        else if((flag & 0x08000000) != RESET)
+        else if ((flag & 0x08000000) != RESET)
         {
             can->TXSTS = flagtmp;
         }
@@ -974,55 +1040,57 @@ uint8_t CAN_ReadIntFlag(CAN_T* can, CAN_INT_T flag)
 {
     uint8_t status = 0;
 
-    if((can->INTEN & flag) != RESET)
+    if ((can->INTEN & flag) != RESET)
     {
         switch (flag)
         {
-        case CAN_INT_TXME:
-            status = can->TXSTS_B.REQCFLG0 | can->TXSTS_B.REQCFLG1 | can->TXSTS_B.REQCFLG2;
-            break;
-        case CAN_INT_F0MP:
-            status = can->RXF0_B.FMNUM0;
-            break;
-        case CAN_INT_F0FULL:
-            status = can->RXF0_B.FFULLFLG0;
-            break;
-        case CAN_INT_F0OVR:
-            status = can->RXF0_B.FOVRFLG0;
-            break;
-        case CAN_INT_F1MP:
-            status = can->RXF1_B.FMNUM1;
-            break;
-        case CAN_INT_F1FULL:
-            status = can->RXF1_B.FFULLFLG1;
-            break;
-        case CAN_INT_F1OVR:
-            status = can->RXF1_B.FOVRFLG1;
-            break;
-        case CAN_INT_WUP:
-            status = can->MSTS_B.WUPIFLG;
-            break;
-        case CAN_INT_SLEEP:
-            status = can->MSTS_B.SLEEPIFLG;
-            break;
-        case CAN_INT_ERRW:
-            status = can->ERRSTS_B.ERRWFLG;
-            break;
-        case CAN_INT_ERRP:
-            status = can->ERRSTS_B.ERRPFLG;
-            break;
-        case CAN_INT_BOF:
-            status = can->ERRSTS_B.BOFLG;
-            break;
-        case CAN_INT_LEC:
-            status = can->ERRSTS_B.LERRC;
-            break;
-        case CAN_INT_ERR:
-            status = can->MSTS_B.ERRIFLG;
-            break;
-        default:
-            status = RESET;
-            break;
+            case CAN_INT_TXME:
+                status = can->TXSTS_B.REQCFLG0;
+                status |= can->TXSTS_B.REQCFLG1;
+                status |= can->TXSTS_B.REQCFLG2;
+                break;
+            case CAN_INT_F0MP:
+                status = can->RXF0_B.FMNUM0;
+                break;
+            case CAN_INT_F0FULL:
+                status = can->RXF0_B.FFULLFLG0;
+                break;
+            case CAN_INT_F0OVR:
+                status = can->RXF0_B.FOVRFLG0;
+                break;
+            case CAN_INT_F1MP:
+                status = can->RXF1_B.FMNUM1;
+                break;
+            case CAN_INT_F1FULL:
+                status = can->RXF1_B.FFULLFLG1;
+                break;
+            case CAN_INT_F1OVR:
+                status = can->RXF1_B.FOVRFLG1;
+                break;
+            case CAN_INT_WUP:
+                status = can->MSTS_B.WUPIFLG;
+                break;
+            case CAN_INT_SLEEP:
+                status = can->MSTS_B.SLEEPIFLG;
+                break;
+            case CAN_INT_ERRW:
+                status = can->ERRSTS_B.ERRWFLG;
+                break;
+            case CAN_INT_ERRP:
+                status = can->ERRSTS_B.ERRPFLG;
+                break;
+            case CAN_INT_BOF:
+                status = can->ERRSTS_B.BOFLG;
+                break;
+            case CAN_INT_LEC:
+                status = can->ERRSTS_B.LERRC;
+                break;
+            case CAN_INT_ERR:
+                status = can->MSTS_B.ERRIFLG;
+                break;
+            default:
+                status = RESET;
+                break;
         }
     }
     else
@@ -1060,51 +1128,51 @@ void CAN_ClearIntFlag(CAN_T* can, CAN_INT_T flag)
 {
     switch (flag)
     {
-    case CAN_INT_TXME:
-        can->TXSTS_B.REQCFLG0 = BIT_SET;
-        can->TXSTS_B.REQCFLG1 = BIT_SET;
-        can->TXSTS_B.REQCFLG2 = BIT_SET;
-        break;
-    case CAN_INT_F0FULL:
-        can->RXF0_B.FFULLFLG0 = BIT_SET;
-        break;
-    case CAN_INT_F0OVR:
-        can->RXF0_B.FOVRFLG0  = BIT_SET;
-        break;
-    case CAN_INT_F1FULL:
-        can->RXF1_B.FFULLFLG1 = BIT_SET;
-        break;
-    case CAN_INT_F1OVR:
-        can->RXF1_B.FOVRFLG1  = BIT_SET;
-        break;
-    case CAN_INT_WUP:
-        can->MSTS_B.WUPIFLG   = BIT_SET;
-        break;
-    case CAN_INT_SLEEP:
-        can->MSTS_B.SLEEPIFLG = BIT_SET;
-        break;
-    case CAN_INT_ERRW:
-        can->MSTS_B.ERRIFLG = BIT_SET;
-        break;
-    case CAN_INT_ERRP:
-        can->MSTS_B.ERRIFLG = BIT_SET;
-        break;
-    case CAN_INT_BOF:
-        can->MSTS_B.ERRIFLG = BIT_SET;
-        break;
-    case CAN_INT_LEC:
-        can->ERRSTS_B.LERRC = BIT_RESET;
-        can->MSTS_B.ERRIFLG = BIT_SET;
-        break;
-    case CAN_INT_ERR:
-        can->ERRSTS_B.LERRC = BIT_RESET;
-        can->MSTS_B.ERRIFLG = BIT_SET;
-        break;
-    default:
-        break;
+        case CAN_INT_TXME:
+            can->TXSTS_B.REQCFLG0 = BIT_SET;
+            can->TXSTS_B.REQCFLG1 = BIT_SET;
+            can->TXSTS_B.REQCFLG2 = BIT_SET;
+            break;
+        case CAN_INT_F0FULL:
+            can->RXF0_B.FFULLFLG0 = BIT_SET;
+            break;
+        case CAN_INT_F0OVR:
+            can->RXF0_B.FOVRFLG0  = BIT_SET;
+            break;
+        case CAN_INT_F1FULL:
+            can->RXF1_B.FFULLFLG1 = BIT_SET;
+            break;
+        case CAN_INT_F1OVR:
+            can->RXF1_B.FOVRFLG1  = BIT_SET;
+            break;
+        case CAN_INT_WUP:
+            can->MSTS_B.WUPIFLG   = BIT_SET;
+            break;
+        case CAN_INT_SLEEP:
+            can->MSTS_B.SLEEPIFLG = BIT_SET;
+            break;
+        case CAN_INT_ERRW:
+            can->MSTS_B.ERRIFLG = BIT_SET;
+            break;
+        case CAN_INT_ERRP:
+            can->MSTS_B.ERRIFLG = BIT_SET;
+            break;
+        case CAN_INT_BOF:
+            can->MSTS_B.ERRIFLG = BIT_SET;
+            break;
+        case CAN_INT_LEC:
+            can->ERRSTS_B.LERRC = BIT_RESET;
+            can->MSTS_B.ERRIFLG = BIT_SET;
+            break;
+        case CAN_INT_ERR:
+            can->ERRSTS_B.LERRC = BIT_RESET;
+            can->MSTS_B.ERRIFLG = BIT_SET;
+            break;
+        default:
+            break;
     }
 }
 
-/**@} end of group CAN_Fuctions*/
-/**@} end of group CAN_Driver*/
-/**@} end of group Peripherals_Library*/
+/**@} end of group CAN_Functions */
+/**@} end of group CAN_Driver */
+/**@} end of group APM32F10x_StdPeriphDriver */

@@ -1,18 +1,33 @@
 /*!
- * @file       apm32f10x_gpio.c
+ * @file        apm32f10x_gpio.c
  *
- * @brief      This file provides all the GPIO firmware functions
+ * @brief       This file provides all the GPIO firmware functions
  *
- * @version    V1.0.1
+ * @version     V1.0.4
  *
- * @date       2021-03-23
+ * @date        2022-12-01
  *
+ * @attention
+ *
+ *  Copyright (C) 2020-2022 Geehy Semiconductor
+ *
+ *  You may not use this file except in compliance with the
+ *  GEEHY COPYRIGHT NOTICE (GEEHY SOFTWARE PACKAGE LICENSE).
+ *
+ *  The program is only for reference, which is distributed in the hope
+ *  that it will be useful and instructional for customers to develop
+ *  their software. Unless required by applicable law or agreed to in
+ *  writing, the program is distributed on an "AS IS" BASIS, WITHOUT
+ *  ANY WARRANTY OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the GEEHY SOFTWARE PACKAGE LICENSE for the governing permissions
+ *  and limitations under the License.
  */
 
+/* Includes */
 #include "apm32f10x_gpio.h"
 #include "apm32f10x_rcm.h"
 
-/** @addtogroup Peripherals_Library Standard Peripheral Library
+/** @addtogroup APM32F10x_StdPeriphDriver
   @{
 */
 
@@ -20,7 +35,7 @@
   @{
 */
 
-/** @addtogroup GPIO_Fuctions Fuctions
+/** @defgroup GPIO_Functions Functions
   @{
 */
 
@@ -167,7 +182,7 @@ void GPIO_Config(GPIO_T* port, GPIO_Config_T* gpioConfig)
  *
  * @retval    None
  */
-void GPIO_StructInit(GPIO_Config_T* gpioConfig)
+void GPIO_ConfigStructInit(GPIO_Config_T* gpioConfig)
 {
     gpioConfig->pin  = GPIO_PIN_ALL;
     gpioConfig->speed = GPIO_SPEED_2MHz;
@@ -252,7 +267,7 @@ uint16_t GPIO_ReadOutputPort(GPIO_T* port)
  *
  * @retval    None
  */
-void GPIO_SetBits(GPIO_T* port, uint16_t pin)
+void GPIO_SetBit(GPIO_T* port, uint16_t pin)
 {
     port->BSC = (uint32_t)pin;
 }
@@ -268,7 +283,7 @@ void GPIO_SetBits(GPIO_T* port, uint16_t pin)
  *
  * @retval    None
  */
-void GPIO_ResetBits(GPIO_T* port, uint16_t pin)
+void GPIO_ResetBit(GPIO_T* port, uint16_t pin)
 {
     port->BC = (uint32_t)pin;
 }
@@ -421,6 +436,24 @@ void GPIO_DisableEventOutput(void)
  *                    @arg GPIO_REMAP_PD01            : PD01 Alternate Function mapping
  *                    @arg GPIO_NO_REMAP_TMR5CH4_LSI  : No LSI connected to TIM5 Channel4 input capture for calibration
  *                    @arg GPIO_REMAP_TMR5CH4_LSI     : LSI connected to TIM5 Channel4 input capture for calibration
+ *                  Only For APM32F10X_CL devices(APM32F107xx and APM32F105xx):
+ *                    @arg GPIO_NO_REMAP_ETH_MAC      : No Ethernet MAC Alternate remapping
+ *                    @arg GPIO_REMAP_ETH_MAC         : Ethernet MAC Alternate remapping
+ *                    @arg GPIO_NO_REMAP_CAN2         : No CAN2 Alternate Function mapping
+ *                    @arg GPIO_REMAP_CAN2            : CAN2 Alternate Function mapping
+ *                    @arg GPIO_REMAP_MACEISEL_MII    : Ethernet MAC External Interface Select MII Interface
+ *                    @arg GPIO_REMAP_MACEISEL_RMII   : Ethernet MAC External Interface Select RMII Interface
+ *                    @arg GPIO_NO_REMAP_SPI3         : No SPI3 Alternate Function mapping
+ *                    @arg GPIO_REMAP_SPI3            : SPI3 Alternate Function mapping
+ *                    @arg GPIO_NO_REMAP_SWJ          : Full SWJ Enabled (JTAG-DP + SW-DP)
+ *                    @arg GPIO_REMAP_SWJ_NOJTRST     : Full SWJ Enabled (JTAG-DP + SW-DP) but without JTRST
+ *                    @arg GPIO_REMAP_SWJ_JTAGDISABLE : JTAG-DP Disabled and SW-DP Enabled
+ *                    @arg GPIO_REMAP_SWJ_DISABLE     : Full SWJ Disabled (JTAG-DP + SW-DP)
+ *                    @arg GPIO_NO_REMAP_TMR2ITR1     : No TMR2 ITR1 Alternate Function mapping
+ *                    @arg GPIO_REMAP_TMR2ITR1        : TMR2 ITR1 Alternate Function mapping
+ *                    @arg GPIO_NO_REMAP_PTP_PPS      : No Ethernet MAC PTP_PPS Alternate Function mapping
+ *                    @arg GPIO_REMAP_PTP_PPS         : Ethernet MAC PTP_PPS Alternate Function mapping
+ *                  For Other APM32F10X_HD/MD/LD devices:
  *                    @arg GPIO_NO_REMAP_ADC1_ETRGINJ : No ADC1 External Trigger Injected Conversion remapping
  *                    @arg GPIO_REMAP_ADC1_ETRGINJ    : ADC1 External Trigger Injected Conversion remapping
  *                    @arg GPIO_NO_REMAP_ADC1_ETRGREG : No ADC1 External Trigger Regular Conversion remapping
@@ -457,7 +490,7 @@ void GPIO_ConfigPinRemap(GPIO_REMAP_T remap)
         regVal = AFIO->REMAP1;
     }
 
-    if(remap >> 8 == 0x18)
+    if (remap >> 8 == 0x18)
     {
         regVal &= 0xF0FFFFFF;
         AFIO->REMAP1 &= 0xF0FFFFFF;
@@ -500,32 +533,32 @@ void GPIO_ConfigEINTLine(GPIO_PORT_SOURCE_T portSource, GPIO_PIN_SOURCE_T pinSou
     if (pinSource <= GPIO_PIN_SOURCE_3)
     {
         shift = pinSource << 2;
-        AFIO->EINTSEL1 &= (uint32_t )~(0x0f << shift);
+        AFIO->EINTSEL1 &= (uint32_t)~(0x0f << shift);
         AFIO->EINTSEL1 |=  portSource << shift;
     }
 
     else if (pinSource <= GPIO_PIN_SOURCE_7)
     {
         shift = (pinSource - GPIO_PIN_SOURCE_4) << 2;
-        AFIO->EINTSEL2 &= (uint32_t )~(0x0f << shift);
+        AFIO->EINTSEL2 &= (uint32_t)~(0x0f << shift);
         AFIO->EINTSEL2 |=  portSource << shift;
     }
 
     else if (pinSource <= GPIO_PIN_SOURCE_11)
     {
         shift = (pinSource - GPIO_PIN_SOURCE_8) << 2;
-        AFIO->EINTSEL3 &= (uint32_t )~(0x0f << shift);
+        AFIO->EINTSEL3 &= (uint32_t)~(0x0f << shift);
         AFIO->EINTSEL3 |=  portSource << shift;
     }
 
     else if (pinSource <= GPIO_PIN_SOURCE_15)
     {
         shift = (pinSource - GPIO_PIN_SOURCE_12) << 2;
-        AFIO->EINTSEL4 &= (uint32_t )~(0x0f << shift);
+        AFIO->EINTSEL4 &= (uint32_t)~(0x0f << shift);
         AFIO->EINTSEL4 |=  portSource << shift;
     }
 }
 
-/**@} end of group GPIO_Fuctions*/
+/**@} end of group GPIO_Functions*/
 /**@} end of group GPIO_Driver*/
-/**@} end of group Peripherals_Library*/
+/**@} end of group APM32F10x_StdPeriphDriver*/

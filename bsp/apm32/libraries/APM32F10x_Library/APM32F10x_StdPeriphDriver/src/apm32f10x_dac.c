@@ -3,24 +3,39 @@
  *
  * @brief       This file provides all the DAC firmware functions
  *
- * @version     V1.0.1
+ * @version     V1.0.4
  *
- * @date        2021-03-23
+ * @date        2022-12-01
  *
+ * @attention
+ *
+ *  Copyright (C) 2020-2022 Geehy Semiconductor
+ *
+ *  You may not use this file except in compliance with the
+ *  GEEHY COPYRIGHT NOTICE (GEEHY SOFTWARE PACKAGE LICENSE).
+ *
+ *  The program is only for reference, which is distributed in the hope
+ *  that it will be useful and instructional for customers to develop
+ *  their software. Unless required by applicable law or agreed to in
+ *  writing, the program is distributed on an "AS IS" BASIS, WITHOUT
+ *  ANY WARRANTY OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the GEEHY SOFTWARE PACKAGE LICENSE for the governing permissions
+ *  and limitations under the License.
  */
 
 #include "apm32f10x_dac.h"
 #include "apm32f10x_rcm.h"
 
-/** @addtogroup Peripherals_Library Standard Peripheral Library
+/** @addtogroup APM32F10x_StdPeriphDriver
   @{
 */
 
 /** @addtogroup DAC_Driver DAC Driver
+  * @brief DAC driver modules
   @{
 */
 
-/** @addtogroup DAC_Fuctions Fuctions
+/** @defgroup DAC_Functions Functions
   @{
 */
 
@@ -38,18 +53,18 @@ void DAC_Reset(void)
 }
 
 /*!
- * @brief        Config the DAC peripheral according to the specified parameters in the configStruct
+ * @brief        Config the DAC peripheral according to the specified parameters in the dacConfig
  *
  * @param        channel: Select the DAC channel.
  *                        This parameter can be one of the following values:
  *                        @arg DAC_CHANNEL_1 : DAC channel 1
  *                        @arg DAC_CHANNEL_2 : DAC channel 2
  *
- * @param        configStruct: pointer to a DAC_ConfigStruct_T structure
+ * @param        dacConfig: pointer to a DAC_Config_T structure
  *
  * @retval       None
  */
-void DAC_Config(uint32_t channel, DAC_ConfigStruct_T* configStruct)
+void DAC_Config(uint32_t channel, DAC_Config_T* dacConfig)
 {
     uint32_t tmp1 = 0, tmp2 = 0;
 
@@ -57,29 +72,33 @@ void DAC_Config(uint32_t channel, DAC_ConfigStruct_T* configStruct)
 
     tmp1 &= ~(((uint32_t)0x00000FFE) << channel);
 
-    tmp2 = (configStruct->trigger | configStruct->waveGeneration | configStruct->maskAmplitudeSelect | configStruct->outputBuffer);
+    tmp2 = ((uint32_t)dacConfig->trigger | \
+            (uint32_t)dacConfig->waveGeneration | \
+            (uint32_t)dacConfig->maskAmplitudeSelect | \
+            (uint32_t)dacConfig->outputBuffer);
+
     tmp1 |= tmp2 << channel;
 
     DAC->CTRL = tmp1;
 }
 
 /*!
- * @brief        Fills each DAC_ConfigStruct_T member with its default value
+ * @brief        Fills each DAC_Config_T member with its default value
  *
- * @param        configStruct: pointer to a DAC_ConfigStruct_T structure which will be initialized
+ * @param        dacConfig: pointer to a DAC_Config_T structure which will be initialized
  *
  * @retval       None
  */
-void DAC_ConfigStructInit(DAC_ConfigStruct_T* configStruct)
+void DAC_ConfigStructInit(DAC_Config_T* dacConfig)
 {
     /* Initialize the DAC_Trigger member */
-    configStruct->trigger = DAC_TRIGGER_NONE;
+    dacConfig->trigger = DAC_TRIGGER_NONE;
     /* Initialize the DAC_WaveGeneration member */
-    configStruct->waveGeneration = DAC_WAVE_GENERATION_NONE;
+    dacConfig->waveGeneration = DAC_WAVE_GENERATION_NONE;
     /* Initialize the DAC_LFSRUnmask_TriangleAmplitude member */
-    configStruct->maskAmplitudeSelect = DAC_LFSR_MASK_BIT11_1;
+    dacConfig->maskAmplitudeSelect = DAC_LFSR_MASK_BIT11_1;
     /* Initialize the DAC_OutputBuffer member */
-    configStruct->outputBuffer = DAC_OUTPUT_BUFFER_ENBALE;
+    dacConfig->outputBuffer = DAC_OUTPUT_BUFFER_ENBALE;
 }
 
 /*!
@@ -304,7 +323,7 @@ void DAC_ConfigChannel1Data(DAC_ALIGN_T align, uint16_t data)
     tmp += 0x00000008 + align;
 
     /* Set the DAC channel1 selected data holding register */
-    *(__IO uint32_t *) tmp = data;
+    *(__IO uint32_t*) tmp = data;
 }
 
 /*!
@@ -328,7 +347,7 @@ void DAC_ConfigChannel2Data(DAC_ALIGN_T align, uint16_t data)
     tmp += 0x00000014 + align;
 
     /* Set the DAC channel1 selected data holding register */
-    *(__IO uint32_t *) tmp = data;
+    *(__IO uint32_t*) tmp = data;
 }
 
 /*!
@@ -364,7 +383,7 @@ void DAC_ConfigDualChannelData(DAC_ALIGN_T align, uint16_t data2, uint16_t data1
     tmp += 0x00000020 + align;
 
     /* Set the dual DAC selected data holding register */
-    *(__IO uint32_t *)tmp = data;
+    *(__IO uint32_t*)tmp = data;
 }
 
 /*!
@@ -385,9 +404,9 @@ uint16_t DAC_ReadDataOutputValue(DAC_CHANNEL_T channel)
     tmp += 0x0000002C + ((uint32_t)channel >> 2);
 
     /* Returns the DAC channel data output register value */
-    return (uint16_t) (*(__IO uint32_t*) tmp);
+    return (uint16_t)(*(__IO uint32_t*) tmp);
 }
 
-/**@} end of group DAC_Fuctions*/
+/**@} end of group DAC_Functions*/
 /**@} end of group DAC_Driver*/
-/**@} end of group Peripherals_Library*/
+/**@} end of group APM32F10x_StdPeriphDriver */

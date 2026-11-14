@@ -22,7 +22,7 @@
  * limitations under the License.
  */
 
-#if   defined ( __ICCARM__ ) 
+#if   defined ( __ICCARM__ )
  #pragma system_include         /* treat file as system include file for MISRA check */
 #elif defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
   #pragma clang system_header   /* treat file as system include file */
@@ -195,8 +195,8 @@
 
 #endif
 
-#include "core_cminstr.h"                /* Core Instruction Access */
-#include "core_cmfunc.h"                 /* Core Function Access */
+#include "core_cmInstr.h"                /* Core Instruction Access */
+#include "core_cmFunc.h"                 /* Core Function Access */
 
 #ifdef __cplusplus
 }

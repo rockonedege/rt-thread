@@ -3,44 +3,59 @@
  *
  * @brief       This file provides all the ADC firmware functions
  *
- * @version     V1.0.1
+ * @version     V1.0.4
  *
- * @date        2021-03-23
+ * @date        2022-12-01
  *
+ * @attention
+ *
+ *  Copyright (C) 2020-2022 Geehy Semiconductor
+ *
+ *  You may not use this file except in compliance with the
+ *  GEEHY COPYRIGHT NOTICE (GEEHY SOFTWARE PACKAGE LICENSE).
+ *
+ *  The program is only for reference, which is distributed in the hope
+ *  that it will be useful and instructional for customers to develop
+ *  their software. Unless required by applicable law or agreed to in
+ *  writing, the program is distributed on an "AS IS" BASIS, WITHOUT
+ *  ANY WARRANTY OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the GEEHY SOFTWARE PACKAGE LICENSE for the governing permissions
+ *  and limitations under the License.
  */
 
 #include "apm32f10x_adc.h"
 #include "apm32f10x_rcm.h"
 
-/** @addtogroup Peripherals_Library Standard Peripheral Library
+/** @addtogroup APM32F10x_StdPeriphDriver
   @{
 */
 
 /** @addtogroup ADC_Driver ADC Driver
+  * @brief ADC driver modules
   @{
 */
 
-/** @addtogroup ADC_Fuctions Fuctions
+/** @defgroup ADC_Functions Functions
   @{
 */
 
 /*!
- * @brief     Reset ADC peripheral registers to their default reset values.
+ * @brief       Reset ADC peripheral registers to their default reset values.
  *
- * @param     adc: Select ADC peripheral.
+ * @param       adc: Select ADC peripheral.
  *
- * @retval    None
+ * @retval      None
  *
- * @note      adc can be ADC1, ADC2 or ADC3.
+ * @note        adc can be ADC1, ADC2 or ADC3.
  */
 void ADC_Reset(ADC_T* adc)
 {
-    if(adc == ADC1)
+    if (adc == ADC1)
     {
         RCM_EnableAPB2PeriphReset(RCM_APB2_PERIPH_ADC1);
         RCM_DisableAPB2PeriphReset(RCM_APB2_PERIPH_ADC1);
     }
-    else if(adc == ADC2)
+    else if (adc == ADC2)
     {
         RCM_EnableAPB2PeriphReset(RCM_APB2_PERIPH_ADC2);
         RCM_DisableAPB2PeriphReset(RCM_APB2_PERIPH_ADC2);
@@ -74,8 +89,10 @@ void ADC_Config(ADC_T* adc, ADC_Config_T* adcConfig)
 
     reg = adc->CTRL2;
     reg &= 0xFFF1F7FD;
-    reg |= (uint32_t)(adcConfig->dataAlign | adcConfig->externalTrigConv |
-                    ((uint32_t)adcConfig->continuosConvMode << 1));
+    reg |= (uint32_t)adcConfig->dataAlign | \
+           (uint32_t)adcConfig->externalTrigConv | \
+           ((uint32_t)adcConfig->continuosConvMode << 1);
+
     adc->CTRL2 = reg;
 
     reg = adc->REGSEQ1;
@@ -273,7 +290,7 @@ uint8_t ADC_ReadSoftwareStartConvStatus(ADC_T* adc)
  *
  * @note         adc can be ADC1, ADC2 or ADC3.
  */
-void ADC_ConfigDiscModeChannel(ADC_T* adc, uint8_t number)
+void ADC_ConfigDiscMode(ADC_T* adc, uint8_t number)
 {
     adc->CTRL1_B.DISCNUMCFG |= number - 1;
 }
@@ -337,24 +354,24 @@ void ADC_DisableDiscMode(ADC_T* adc)
  *
  * @param        sampleTime: the specified ADC channel SampleTime
  *                           The parameter can be one of following values:
- *                           @arg ADC_SAMPLE_TIME_1_5:   ADC 1.5 clock cycles
- *                           @arg ADC_SAMPLE_TIME_7_5:   ADC 7.5 clock cycles
- *                           @arg ADC_SAMPLE_TIME_13_5:  ADC 13.5 clock cycles
- *                           @arg ADC_SAMPLE_TIME_28_5:  ADC 28.5 clock cycles
- *                           @arg ADC_SAMPLE_TIME_41_5:  ADC 41.5 clock cycles
- *                           @arg ADC_SAMPLE_TIME_55_5:  ADC 55.5 clock cycles
- *                           @arg ADC_SAMPLE_TIME_71_5:  ADC 71.5 clock cycles
- *                           @arg ADC_SAMPLE_TIME_239_5: ADC 239.5 clock cycles
+ *                           @arg ADC_SAMPLETIME_1CYCLES5:   ADC 1.5 clock cycles
+ *                           @arg ADC_SAMPLETIME_7CYCLES5:   ADC 7.5 clock cycles
+ *                           @arg ADC_SAMPLETIME_13CYCLES5:  ADC 13.5 clock cycles
+ *                           @arg ADC_SAMPLETIME_28CYCLES5:  ADC 28.5 clock cycles
+ *                           @arg ADC_SAMPLETIME_41CYCLES5:  ADC 41.5 clock cycles
+ *                           @arg ADC_SAMPLETIME_55CYCLES5:  ADC 55.5 clock cycles
+ *                           @arg ADC_SAMPLETIME_71CYCLES5:  ADC 71.5 clock cycles
+ *                           @arg ADC_SAMPLETIME_239CYCLES5: ADC 239.5 clock cycles
  *
  * @retval       None
  *
  * @note         adc can be ADC1, ADC2 or ADC3.
  */
-void ADC_ConfigRegularChannel(ADC_T* adc, uint8_t channel,uint8_t rank, uint8_t sampleTime)
+void ADC_ConfigRegularChannel(ADC_T* adc, uint8_t channel, uint8_t rank, uint8_t sampleTime)
 {
     uint32_t temp1 = 0;
     uint32_t temp2 = 0;
-    if(channel > ADC_CHANNEL_9)
+    if (channel > ADC_CHANNEL_9)
     {
         temp1 = adc->SMPTIM1;
         temp2 = SMPCYCCFG_SET_SMPTIM1 << (3 * (channel - 10));
@@ -373,7 +390,7 @@ void ADC_ConfigRegularChannel(ADC_T* adc, uint8_t channel,uint8_t rank, uint8_t 
         adc->SMPTIM2 = temp1;
     }
 
-    if(rank < 7)
+    if (rank < 7)
     {
         temp1 = adc->REGSEQ3;
         temp2 = REGSEQC_SET_REGSEQ3 << (5 * (rank - 1));
@@ -382,7 +399,7 @@ void ADC_ConfigRegularChannel(ADC_T* adc, uint8_t channel,uint8_t rank, uint8_t 
         temp1 |= temp2;
         adc->REGSEQ3 = temp1;
     }
-    else if(rank < 13)
+    else if (rank < 13)
     {
         temp1 = adc->REGSEQ2;
         temp2 = REGSEQC_SET_REGSEQ2 << (5 * (rank - 7));
@@ -455,7 +472,7 @@ uint16_t ADC_ReadConversionValue(ADC_T* adc)
  */
 uint32_t ADC_ReadDualModeConversionValue(ADC_T* adc)
 {
-      return (*(__IOM uint32_t *) RDG_ADDRESS);
+    return (*(__IOM uint32_t*) RDG_ADDRESS);
 }
 
 /*!
@@ -467,7 +484,7 @@ uint32_t ADC_ReadDualModeConversionValue(ADC_T* adc)
  *
  * @note         adc can be ADC1, ADC2 or ADC3.
  */
-void ADC_EnableInjectedConv(ADC_T* adc)
+void ADC_EnableAutoInjectedConv(ADC_T* adc)
 {
     adc->CTRL1_B.INJGACEN = BIT_SET;
 }
@@ -481,7 +498,7 @@ void ADC_EnableInjectedConv(ADC_T* adc)
  *
  * @note         adc can be ADC1, ADC2 or ADC3.
  */
-void ADC_DisableInjectedConv(ADC_T* adc)
+void ADC_DisableAutoInjectedConv(ADC_T* adc)
 {
     adc->CTRL1_B.INJGACEN = BIT_RESET;
 }
@@ -653,14 +670,14 @@ uint8_t ADC_ReadSoftwareStartInjectedConvStatus(ADC_T* adc)
  *
  * @param        sampleTime: the specified ADC channel SampleTime
  *                           The parameter can be one of following values:
- *                           @arg ADC_SAMPLE_TIME_1_5:   ADC 1.5 clock cycles
- *                           @arg ADC_SAMPLE_TIME_7_5:   ADC 7.5 clock cycles
- *                           @arg ADC_SAMPLE_TIME_13_5:  ADC 13.5 clock cycles
- *                           @arg ADC_SAMPLE_TIME_28_5:  ADC 28.5 clock cycles
- *                           @arg ADC_SAMPLE_TIME_41_5:  ADC 41.5 clock cycles
- *                           @arg ADC_SAMPLE_TIME_55_5:  ADC 55.5 clock cycles
- *                           @arg ADC_SAMPLE_TIME_71_5:  ADC 71.5 clock cycles
- *                           @arg ADC_SAMPLE_TIME_239_5: ADC 239.5 clock cycles
+ *                           @arg ADC_SAMPLETIME_1CYCLES5:   ADC 1.5 clock cycles
+ *                           @arg ADC_SAMPLETIME_7CYCLES5:   ADC 7.5 clock cycles
+ *                           @arg ADC_SAMPLETIME_13CYCLES5:  ADC 13.5 clock cycles
+ *                           @arg ADC_SAMPLETIME_28CYCLES5:  ADC 28.5 clock cycles
+ *                           @arg ADC_SAMPLETIME_41CYCLES5:  ADC 41.5 clock cycles
+ *                           @arg ADC_SAMPLETIME_55CYCLES5:  ADC 55.5 clock cycles
+ *                           @arg ADC_SAMPLETIME_71CYCLES5:  ADC 71.5 clock cycles
+ *                           @arg ADC_SAMPLETIME_239CYCLES5: ADC 239.5 clock cycles
  *
  * @retval       None
  *
@@ -674,9 +691,9 @@ void ADC_ConfigInjectedChannel(ADC_T* adc, uint8_t channel, uint8_t rank, uint8_
     if (channel > ADC_CHANNEL_9)
     {
         temp1 = adc->SMPTIM1;
-        temp2 = SMPCYCCFG_SET_SMPTIM1 << (3*(channel - 10));
+        temp2 = SMPCYCCFG_SET_SMPTIM1 << (3 * (channel - 10));
         temp1 &= ~temp2;
-        temp2 = (uint32_t)sampleTime << (3*(channel - 10));
+        temp2 = (uint32_t)sampleTime << (3 * (channel - 10));
         temp1 |= temp2;
         adc->SMPTIM1 = temp1;
     }
@@ -690,7 +707,7 @@ void ADC_ConfigInjectedChannel(ADC_T* adc, uint8_t channel, uint8_t rank, uint8_
         adc->SMPTIM2 = temp1;
     }
     temp1 = adc->INJSEQ;
-    temp3 =  (temp1 & INJSEQ_SET_INJSEQLEN)>> 20;
+    temp3 = (temp1 & INJSEQ_SET_INJSEQLEN) >> 20;
     temp2 = INJSEQ_SET_INJSEQC << (5 * (uint8_t)((rank + 3) - (temp3 + 1)));
     temp1 &= ~temp2;
     temp2 = (uint32_t)channel << (5 * (uint8_t)((rank + 3) - (temp3 + 1)));
@@ -742,7 +759,7 @@ void ADC_ConfigInjectedOffset(ADC_T* adc, ADC_INJEC_CHANNEL_T channel, uint16_t 
     tmp = (uint32_t)adc;
     tmp += channel;
 
-    *(__IOM uint32_t *) tmp = (uint32_t)offSet;
+    *(__IOM uint32_t*) tmp = (uint32_t)offSet;
 }
 
 /*!
@@ -763,12 +780,12 @@ void ADC_ConfigInjectedOffset(ADC_T* adc, ADC_INJEC_CHANNEL_T channel, uint16_t 
  */
 uint16_t ADC_ReadInjectedConversionValue(ADC_T* adc, ADC_INJEC_CHANNEL_T channel)
 {
-  __IOM uint32_t temp = 0;
+    __IOM uint32_t temp = 0;
 
-  temp = (uint32_t)adc;
-  temp += channel + INJDATA_OFFSET;
+    temp = (uint32_t)adc;
+    temp += channel + INJDATA_OFFSET;
 
-  return (uint16_t) (*(__IOM uint32_t*)  temp);
+    return (uint16_t)(*(__IOM uint32_t*)  temp);
 }
 
 /*!
@@ -960,17 +977,7 @@ void ADC_DisableInterrupt(ADC_T* adc, uint16_t interrupt)
  */
 uint8_t ADC_ReadStatusFlag(ADC_T* adc, ADC_FLAG_T flag)
 {
-    uint8_t status = RESET;
-
-    if ((adc->STS & flag) != (uint8_t)RESET)
-    {
-        status = SET;
-    }
-    else
-    {
-    status = RESET;
-    }
-    return  status;
+    return (adc->STS & flag) ? SET : RESET;
 }
 
 /*!
@@ -1010,14 +1017,14 @@ void ADC_ClearStatusFlag(ADC_T* adc, uint8_t flag)
  *
  * @note         adc can be ADC1, ADC2 or ADC3.
  */
-uint8_t ADC_ReadIntFlag(ADC_T* adc, ADC_INT_T interrupt)
+uint8_t ADC_ReadIntFlag(ADC_T* adc, ADC_INT_T flag)
 {
     uint8_t bitStatus = RESET;
     uint32_t itmask = 0;
     uint32_t enableStatus = 0;
 
-    itmask = interrupt >> 8;
-    enableStatus = (adc->CTRL1 & (uint8_t)interrupt);
+    itmask = flag >> 8;
+    enableStatus = (adc->CTRL1 & (uint8_t)flag);
 
     if (((adc->STS & itmask) != (uint32_t)RESET) && enableStatus)
     {
@@ -1045,14 +1052,14 @@ uint8_t ADC_ReadIntFlag(ADC_T* adc, ADC_INT_T interrupt)
  *
  * @note         adc can be ADC1, ADC2 or ADC3.
  */
-void ADC_ClearIntFlag(ADC_T* adc, uint16_t interrupt)
+void ADC_ClearIntFlag(ADC_T* adc, uint16_t flag)
 {
-  uint8_t mask = 0;
+    uint8_t mask = 0;
 
-  mask = (uint8_t)(interrupt >> 8);
-  adc->STS = ~(uint32_t)mask;
+    mask = (uint8_t)(flag >> 8);
+    adc->STS = ~(uint32_t)mask;
 }
 
-/**@} end of group ADC_Fuctions*/
-/**@} end of group ADC_Driver*/
-/**@} end of group Peripherals_Library*/
+/**@} end of group ADC_Functions */
+/**@} end of group ADC_Driver */
+/**@} end of group APM32F10x_StdPeriphDriver */

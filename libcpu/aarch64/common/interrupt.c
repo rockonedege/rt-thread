@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2021, RT-Thread Development Team
+ * Copyright (c) 2006-2022, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -13,29 +13,27 @@
 #include <rtthread.h>
 #include "interrupt.h"
 #include "gic.h"
-#include "armv8.h"
-#include "mmu.h"
+#include "gicv3.h"
+#include "ioremap.h"
 
 /* exception and interrupt handler table */
 struct rt_irq_desc isr_table[MAX_HANDLERS];
 
-#ifndef RT_USING_SMP
-/* Those variables will be accessed in ISR, so we need to share them. */
-rt_ubase_t rt_interrupt_from_thread        = 0;
-rt_ubase_t rt_interrupt_to_thread          = 0;
-rt_ubase_t rt_thread_switch_interrupt_flag = 0;
+#ifndef RT_CPUS_NR
+#define RT_CPUS_NR 1
 #endif
 
 const unsigned int VECTOR_BASE = 0x00;
-extern int system_vectors;
+extern void rt_cpu_vector_set_base(void *addr);
+extern void *system_vectors;
 
 #ifdef RT_USING_SMP
 #define rt_interrupt_nest rt_cpu_self()->irq_nest
 #else
-extern volatile rt_uint8_t rt_interrupt_nest;
+extern volatile rt_atomic_t rt_interrupt_nest;
 #endif
 
-#ifndef BSP_USING_GIC
+#ifdef SOC_BCM283x
 static void default_isr_handler(int vector, void *param)
 {
 #ifdef RT_USING_SMP
@@ -48,7 +46,7 @@ static void default_isr_handler(int vector, void *param)
 
 void rt_hw_vector_init(void)
 {
-    rt_hw_set_current_vbar((rt_ubase_t)&system_vectors);
+    rt_cpu_vector_set_base(&system_vectors);
 }
 
 /**
@@ -56,7 +54,7 @@ void rt_hw_vector_init(void)
  */
 void rt_hw_interrupt_init(void)
 {
-#ifndef BSP_USING_GIC
+#ifdef SOC_BCM283x
     rt_uint32_t index;
     /* initialize vector table */
     rt_hw_vector_init();
@@ -79,13 +77,13 @@ void rt_hw_interrupt_init(void)
     }
 
     /* init interrupt nest, and context in thread sp */
-    rt_interrupt_nest = 0;
-    rt_interrupt_from_thread = 0;
-    rt_interrupt_to_thread = 0;
-    rt_thread_switch_interrupt_flag = 0;
+    rt_atomic_store(&rt_interrupt_nest, 0);
 #else
     rt_uint64_t gic_cpu_base;
     rt_uint64_t gic_dist_base;
+#ifdef BSP_USING_GICV3
+    rt_uint64_t gic_rdist_base;
+#endif
     rt_uint64_t gic_irq_start;
 
     /* initialize vector table */
@@ -95,13 +93,28 @@ void rt_hw_interrupt_init(void)
     rt_memset(isr_table, 0x00, sizeof(isr_table));
 
     /* initialize ARM GIC */
+#if defined(RT_USING_SMART) || defined(RT_USING_OFW)
+    gic_dist_base = (rt_uint64_t)rt_ioremap((void*)platform_get_gic_dist_base(), 0x40000);
+    gic_cpu_base = (rt_uint64_t)rt_ioremap((void*)platform_get_gic_cpu_base(), 0x1000);
+#ifdef BSP_USING_GICV3
+    gic_rdist_base = (rt_uint64_t)rt_ioremap((void*)platform_get_gic_redist_base(),
+            ARM_GIC_CPU_NUM * (2 << 16));
+#endif
+#else
     gic_dist_base = platform_get_gic_dist_base();
     gic_cpu_base = platform_get_gic_cpu_base();
+#ifdef BSP_USING_GICV3
+    gic_rdist_base = platform_get_gic_redist_base();
+#endif
+#endif
 
     gic_irq_start = GIC_IRQ_START;
 
     arm_gic_dist_init(0, gic_dist_base, gic_irq_start);
     arm_gic_cpu_init(0, gic_cpu_base);
+#ifdef BSP_USING_GICV3
+    arm_gic_redist_init(0, gic_rdist_base);
+#endif
 #endif
 }
 
@@ -111,20 +124,20 @@ void rt_hw_interrupt_init(void)
  */
 void rt_hw_interrupt_mask(int vector)
 {
-#ifndef BSP_USING_GIC
+#ifdef SOC_BCM283x
     if (vector < 32)
     {
-        IRQ_DISABLE1 = (1 << vector);
+        IRQ_DISABLE1 = (1UL << vector);
     }
     else if (vector < 64)
     {
         vector = vector % 32;
-        IRQ_DISABLE2 = (1 << vector);
+        IRQ_DISABLE2 = (1UL << vector);
     }
     else
     {
         vector = vector - 64;
-        IRQ_DISABLE_BASIC = (1 << vector);
+        IRQ_DISABLE_BASIC = (1UL << vector);
     }
 #else
     arm_gic_mask(0, vector);
@@ -137,20 +150,20 @@ void rt_hw_interrupt_mask(int vector)
  */
 void rt_hw_interrupt_umask(int vector)
 {
-#ifndef BSP_USING_GIC
+#ifdef SOC_BCM283x
 if (vector < 32)
     {
-        IRQ_ENABLE1 = (1 << vector);
+        IRQ_ENABLE1 = (1UL << vector);
     }
     else if (vector < 64)
     {
         vector = vector % 32;
-        IRQ_ENABLE2 = (1 << vector);
+        IRQ_ENABLE2 = (1UL << vector);
     }
     else
     {
         vector = vector - 64;
-        IRQ_ENABLE_BASIC = (1 << vector);
+        IRQ_ENABLE_BASIC = (1UL << vector);
     }
 #else
     arm_gic_umask(0, vector);
@@ -163,7 +176,7 @@ if (vector < 32)
  */
 int rt_hw_interrupt_get_irq(void)
 {
-#ifdef BSP_USING_GIC
+#ifndef SOC_BCM283x
     return arm_gic_get_active_irq(0);
 #else
     return 0;
@@ -176,20 +189,25 @@ int rt_hw_interrupt_get_irq(void)
  */
 void rt_hw_interrupt_ack(int vector)
 {
-#ifdef BSP_USING_GIC
+#ifndef SOC_BCM283x
     arm_gic_ack(0, vector);
 #endif
 }
 
+#ifndef SOC_BCM283x
 /**
  * This function set interrupt CPU targets.
  * @param vector:   the interrupt number
  *        cpu_mask: target cpus mask, one bit for one core
  */
-void rt_hw_interrupt_set_target_cpus(int vector, unsigned int cpu_mask)
+void rt_hw_interrupt_set_target_cpus(int vector, unsigned long cpu_mask)
 {
 #ifdef BSP_USING_GIC
-    arm_gic_set_cpu(0, vector, cpu_mask);
+#ifdef BSP_USING_GICV3
+    arm_gic_set_router_cpu(0, vector, cpu_mask);
+#else
+    arm_gic_set_cpu(0, vector, (unsigned int) cpu_mask);
+#endif
 #endif
 }
 
@@ -200,11 +218,7 @@ void rt_hw_interrupt_set_target_cpus(int vector, unsigned int cpu_mask)
  */
 unsigned int rt_hw_interrupt_get_target_cpus(int vector)
 {
-#ifdef BSP_USING_GIC
     return arm_gic_get_target_cpu(0, vector);
-#else
-    return -RT_ERROR;
-#endif
 }
 
 /**
@@ -214,9 +228,7 @@ unsigned int rt_hw_interrupt_get_target_cpus(int vector)
  */
 void rt_hw_interrupt_set_triger_mode(int vector, unsigned int mode)
 {
-#ifdef BSP_USING_GIC
-    arm_gic_set_configuration(0, vector, mode);
-#endif
+    arm_gic_set_configuration(0, vector, mode & IRQ_MODE_MASK);
 }
 
 /**
@@ -226,11 +238,7 @@ void rt_hw_interrupt_set_triger_mode(int vector, unsigned int mode)
  */
 unsigned int rt_hw_interrupt_get_triger_mode(int vector)
 {
-#ifdef BSP_USING_GIC
     return arm_gic_get_configuration(0, vector);
-#else
-    return -RT_ERROR;
-#endif
 }
 
 /**
@@ -239,9 +247,7 @@ unsigned int rt_hw_interrupt_get_triger_mode(int vector)
  */
 void rt_hw_interrupt_set_pending(int vector)
 {
-#ifdef BSP_USING_GIC
     arm_gic_set_pending_irq(0, vector);
-#endif
 }
 
 /**
@@ -251,11 +257,7 @@ void rt_hw_interrupt_set_pending(int vector)
  */
 unsigned int rt_hw_interrupt_get_pending(int vector)
 {
-#ifdef BSP_USING_GIC
     return arm_gic_get_pending_irq(0, vector);
-#else
-    return -RT_ERROR;
-#endif
 }
 
 /**
@@ -264,9 +266,7 @@ unsigned int rt_hw_interrupt_get_pending(int vector)
  */
 void rt_hw_interrupt_clear_pending(int vector)
 {
-#ifdef BSP_USING_GIC
     arm_gic_clear_pending_irq(0, vector);
-#endif
 }
 
 /**
@@ -276,9 +276,7 @@ void rt_hw_interrupt_clear_pending(int vector)
  */
 void rt_hw_interrupt_set_priority(int vector, unsigned int priority)
 {
-#ifdef BSP_USING_GIC
     arm_gic_set_priority(0, vector, priority);
-#endif
 }
 
 /**
@@ -288,11 +286,7 @@ void rt_hw_interrupt_set_priority(int vector, unsigned int priority)
  */
 unsigned int rt_hw_interrupt_get_priority(int vector)
 {
-#ifdef BSP_USING_GIC
     return arm_gic_get_priority(0, vector);
-#else
-    return -RT_ERROR;
-#endif
 }
 
 /**
@@ -301,9 +295,7 @@ unsigned int rt_hw_interrupt_get_priority(int vector)
  */
 void rt_hw_interrupt_set_priority_mask(unsigned int priority)
 {
-#ifdef BSP_USING_GIC
     arm_gic_set_interface_prior_mask(0, priority);
-#endif
 }
 
 /**
@@ -313,11 +305,7 @@ void rt_hw_interrupt_set_priority_mask(unsigned int priority)
  */
 unsigned int rt_hw_interrupt_get_priority_mask(void)
 {
-#ifdef BSP_USING_GIC
     return arm_gic_get_interface_prior_mask(0);
-#else
-    return -RT_ERROR;
-#endif
 }
 
 /**
@@ -327,7 +315,6 @@ unsigned int rt_hw_interrupt_get_priority_mask(void)
  */
 int rt_hw_interrupt_set_prior_group_bits(unsigned int bits)
 {
-#ifdef BSP_USING_GIC
     int status;
 
     if (bits < 8)
@@ -341,9 +328,6 @@ int rt_hw_interrupt_set_prior_group_bits(unsigned int bits)
     }
 
     return (status);
-#else
-    return -RT_ERROR;
-#endif
 }
 
 /**
@@ -353,16 +337,13 @@ int rt_hw_interrupt_set_prior_group_bits(unsigned int bits)
  */
 unsigned int rt_hw_interrupt_get_prior_group_bits(void)
 {
-#ifdef BSP_USING_GIC
     unsigned int bp;
 
     bp = arm_gic_get_binary_point(0) & 0x07;
 
     return (7 - bp);
-#else
-    return -RT_ERROR;
-#endif
 }
+#endif /* SOC_BCM283x */
 
 /**
  * This function will install a interrupt service routine to a interrupt.
@@ -389,14 +370,31 @@ rt_isr_handler_t rt_hw_interrupt_install(int vector, rt_isr_handler_t handler,
         }
     }
 
+#ifdef BSP_USING_GIC
+    if (vector > 32)
+    {
+#ifdef BSP_USING_GICV3
+        rt_uint64_t cpu_affinity_val;
+        __asm__ volatile ("mrs %0, mpidr_el1":"=r"(cpu_affinity_val));
+        rt_hw_interrupt_set_target_cpus(vector, cpu_affinity_val);
+#else
+        rt_hw_interrupt_set_target_cpus(vector, 1 << rt_hw_cpu_id());
+#endif /* BSP_USING_GICV3 */
+    }
+#endif
+
     return old_handler;
 }
 
-#ifdef RT_USING_SMP
+#if defined(RT_USING_SMP) || defined(RT_USING_AMP)
 void rt_hw_ipi_send(int ipi_vector, unsigned int cpu_mask)
 {
-#ifdef BSP_USING_GIC
+#ifdef BSP_USING_GICV2
     arm_gic_send_sgi(0, ipi_vector, cpu_mask, 0);
+#elif defined(BSP_USING_GICV3)
+    rt_uint32_t gicv3_cpu_mask[(RT_CPUS_NR + 31) >> 5];
+    gicv3_cpu_mask[0] = cpu_mask;
+    arm_gic_send_affinity_sgi(0, ipi_vector, gicv3_cpu_mask, GICV3_ROUTED_TO_SPEC);
 #endif
 }
 
@@ -407,3 +405,47 @@ void rt_hw_ipi_handler_install(int ipi_vector, rt_isr_handler_t ipi_isr_handler)
 }
 #endif
 
+#if defined(FINSH_USING_MSH) && defined(RT_USING_INTERRUPT_INFO)
+int list_isr()
+{
+    int idx;
+
+    rt_kprintf("%-*.*s nr   handler            param              counter         ", RT_NAME_MAX, RT_NAME_MAX, "irq");
+#ifdef RT_USING_SMP
+    for (int i = 0; i < RT_CPUS_NR; i++)
+    {
+        rt_kprintf(" cpu%2d  ", i);
+    }
+#endif
+    rt_kprintf("\n");
+    for (int i = 0; i < RT_NAME_MAX; i++)
+    {
+        rt_kprintf("-");
+    }
+    rt_kprintf(" ---- ------------------ ------------------ ----------------");
+#ifdef RT_USING_SMP
+    for (int i = 0; i < RT_CPUS_NR; i++)
+    {
+        rt_kprintf(" -------");
+    }
+#endif
+    rt_kprintf("\n");
+    for (idx = 0; idx < MAX_HANDLERS; idx++)
+    {
+        if (isr_table[idx].handler != RT_NULL)
+        {
+            rt_kprintf("%*.s %4d %p %p %16d", RT_NAME_MAX, isr_table[idx].name, idx, isr_table[idx].handler,
+                       isr_table[idx].param, isr_table[idx].counter);
+#ifdef RT_USING_SMP
+            for (int i = 0; i < RT_CPUS_NR; i++)
+                 rt_kprintf(" %7d", isr_table[idx].cpu_counter[i]);
+#endif
+            rt_kprintf("\n");
+        }
+    }
+    return 0;
+}
+
+#include "finsh.h"
+MSH_CMD_EXPORT(list_isr, list isr)
+#endif

@@ -3,22 +3,38 @@
  *
  * @brief       This file contains all the functions prototypes for the SDIO firmware library
  *
- * @version     V1.0.1
+ * @version     V1.0.4
  *
- * @date        2021-03-23
+ * @date        2022-12-01
  *
+ * @attention
+ *
+ *  Copyright (C) 2020-2022 Geehy Semiconductor
+ *
+ *  You may not use this file except in compliance with the
+ *  GEEHY COPYRIGHT NOTICE (GEEHY SOFTWARE PACKAGE LICENSE).
+ *
+ *  The program is only for reference, which is distributed in the hope
+ *  that it will be useful and instructional for customers to develop
+ *  their software. Unless required by applicable law or agreed to in
+ *  writing, the program is distributed on an "AS IS" BASIS, WITHOUT
+ *  ANY WARRANTY OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the GEEHY SOFTWARE PACKAGE LICENSE for the governing permissions
+ *  and limitations under the License.
  */
 
+/* Define to prevent recursive inclusion */
 #ifndef __APM32F10X_SDIO_H
 #define __APM32F10X_SDIO_H
 
+/* Includes */
 #include "apm32f10x.h"
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
-/** @addtogroup Peripherals_Library Standard Peripheral Library
+/** @addtogroup APM32F10x_StdPeriphDriver
   @{
 */
 
@@ -26,7 +42,7 @@
   @{
 */
 
-/** @addtogroup SDIO_Enumerations Enumerations
+/** @defgroup SDIO_Enumerations Enumerations
   @{
 */
 
@@ -37,7 +53,7 @@ typedef enum
 {
     SDIO_CLOCK_EDGE_RISING        = 0x00000000,
     SDIO_CLOCK_EDGE_FALLING       = 0x00002000
-}SDIO_CLOCK_EDGE_T;
+} SDIO_CLOCK_EDGE_T;
 
 /**
  * @brief    SDIO clock bypass
@@ -46,7 +62,7 @@ typedef enum
 {
     SDIO_CLOCK_BYPASS_DISABLE     = 0x00000000,
     SDIO_CLOCK_BYPASS_ENABLE      = 0x00000400
-}SDIO_CLOCK_BYPASS_T;
+} SDIO_CLOCK_BYPASS_T;
 
 /**
  * @brief    SDIO clock power save
@@ -55,17 +71,17 @@ typedef enum
 {
     SDIO_CLOCK_POWER_SAVE_DISABLE = 0x00000000,
     SDIO_CLOCK_POWER_SAVE_ENABLE  = 0x00000200
-}SDIO_CLOCK_POWER_SAVE_T;
+} SDIO_CLOCK_POWER_SAVE_T;
 
 /**
  * @brief    SDIO bus wide
  */
 typedef enum
 {
-    SDIO_BUSWIDE_1B = 0x00000000,
-    SDIO_BUSWIDE_4B = 0x00000800,
-    SDIO_BUSWIDE_8B = 0x00001000
-}SDIO_BUSWIDE_T;
+    SDIO_BUS_WIDE_1B = 0x00000000,
+    SDIO_BUS_WIDE_4B = 0x00000800,
+    SDIO_BUS_WIDE_8B = 0x00001000
+} SDIO_BUS_WIDE_T;
 
 /**
  * @brief    SDIO hardware flow control
@@ -74,7 +90,7 @@ typedef enum
 {
     SDIO_HARDWARE_FLOW_CONTROL_DISABLE = 0x00000000,
     SDIO_HARDWARE_FLOW_CONTROL_ENABLE  = 0x00004000
-}SDIO_HARDWARE_FLOW_CONTROL_T;
+} SDIO_HARDWARE_FLOW_CONTROL_T;
 
 /**
  * @brief    SDIO power state
@@ -83,7 +99,7 @@ typedef enum
 {
     SDIO_POWER_STATE_OFF = 0x00000000,
     SDIO_POWER_STATE_ON  = 0x00000003
-}SDIO_POWER_STATE_T;
+} SDIO_POWER_STATE_T;
 
 /**
  * @brief    SDIO interrupt sources
@@ -114,7 +130,7 @@ typedef enum
     SDIO_INT_RXDA       = 0x00200000,
     SDIO_INT_SDIOINT    = 0x00400000,
     SDIO_INT_ATAEND     = 0x00800000
-}SDIO_INT_T;
+} SDIO_INT_T;
 
 /**
  * @brief    SDIO response
@@ -124,7 +140,7 @@ typedef enum
     SDIO_RESPONSE_NO    = 0x00000000,
     SDIO_RESPONSE_SHORT = 0x00000040,
     SDIO_RESPONSE_LONG  = 0x000000C0
-}SDIO_RESPONSE_T;
+} SDIO_RESPONSE_T;
 
 /**
  * @brief    SDIO wait interrupt state
@@ -134,7 +150,7 @@ typedef enum
     SDIO_WAIT_NO        = 0x00000000,
     SDIO_WAIT_INT       = 0x00000100,
     SDIO_WAIT_PEND      = 0x00000200
-}SDIO_WAIT_T;
+} SDIO_WAIT_T;
 
 /**
  * @brief    SDIO CPSM state
@@ -143,7 +159,7 @@ typedef enum
 {
     SDIO_CPSM_DISABLE   = 0x00000000,
     SDIO_CPSM_ENABLE    = 0x00000400
-}SDIO_CPSM_T;
+} SDIO_CPSM_T;
 
 /**
  * @brief    SDIO response registers
@@ -154,7 +170,7 @@ typedef enum
     SDIO_RES2 = 0x00000004,
     SDIO_RES3 = 0x00000008,
     SDIO_RES4 = 0x0000000C
-}SDIO_RES_T;
+} SDIO_RES_T;
 
 /**
  * @brief    SDIO data block size
@@ -176,16 +192,16 @@ typedef enum
     SDIO_DATA_BLOCKSIZE_496B   = 0x000000C0,
     SDIO_DATA_BLOCKSIZE_8192B  = 0x000000D0,
     SDIO_DATA_BLOCKSIZE_16384B = 0x000000E0
-}SDIO_DATA_BLOCKSIZE_T;
+} SDIO_DATA_BLOCKSIZE_T;
 
 /**
  * @brief    SDIO transfer direction
  */
 typedef enum
 {
-    SDIO_TRANSFER_DIR_TOCARD   = 0x00000000,
-    SDIO_TRANSFER_DIR_TOSDIO   = 0x00000002
-}SDIO_TRANSFER_DIR_T;
+    SDIO_TRANSFER_DIR_TO_CARD   = 0x00000000,
+    SDIO_TRANSFER_DIR_TO_SDIO   = 0x00000002
+} SDIO_TRANSFER_DIR_T;
 
 /**
  * @brief    SDIO transfer type
@@ -194,7 +210,7 @@ typedef enum
 {
     SDIO_TRANSFER_MODE_BLOCK   = 0x00000000,
     SDIO_TRANSFER_MODE_STREAM  = 0x00000004
-}SDIO_TRANSFER_MODE_T;
+} SDIO_TRANSFER_MODE_T;
 
 /**
  * @brief    SDIO DPSM state
@@ -203,7 +219,7 @@ typedef enum
 {
     SDIO_DPSM_DISABLE          = 0x00000000,
     SDIO_DPSM_ENABLE           = 0x00000001
-}SDIO_DPSM_T;
+} SDIO_DPSM_T;
 
 /**
  * @brief    SDIO flag
@@ -234,7 +250,7 @@ typedef enum
     SDIO_FLAG_RXDA      = 0x00200000,
     SDIO_FLAG_SDIOINT   = 0x00400000,
     SDIO_FLAG_ATAEND    = 0x00800000
-}SDIO_FLAG_T;
+} SDIO_FLAG_T;
 
 /**
  * @brief    SDIO read wait mode
@@ -243,26 +259,26 @@ typedef enum
 {
     SDIO_READ_WAIT_MODE_CLK   = 0x00000001,
     SDIO_READ_WAIT_MODE_DATA2 = 0x00000000
-}SDIO_READ_WAIT_MODE_T;
+} SDIO_READ_WAIT_MODE_T;
 
-/**@} end of group SDIO_Enumerations*/
+/**@} end of group SDIO_Enumerations */
 
 
-/** @addtogroup SDIO_Macros Macros
+/** @defgroup SDIO_Macros Macros
   @{
 */
 
-/** ------------ SDIO registers bit address in the alias region ----------- */
+/* ------------ SDIO registers bit address in the alias region ----------- */
 #define SDIO_OFFSET                (SDIO_BASE - PERIPH_BASE)
 
-/* --- CLKCTRL Register ---*/
+/* --- CLKCTRL Register --- */
 
 /* Alias word address of CLKEN bit */
 #define CLKCTRL_OFFSET            (SDIO_OFFSET + 0x04)
 #define CLKEN_BitNumber            0x08
 #define CLKCTRL_CLKEN_BB          (PERIPH_BB_BASE + (CLKCTRL_OFFSET * 32) + (CLKEN_BitNumber * 4))
 
-/* --- CMD Register ---*/
+/* --- CMD Register --- */
 
 /* Alias word address of SDIOSC bit */
 #define CMD_OFFSET                (SDIO_OFFSET + 0x0C)
@@ -281,7 +297,7 @@ typedef enum
 #define ATACMD_BitNumber           0x0E
 #define CMD_ATACMD_BB             (PERIPH_BB_BASE + (CMD_OFFSET * 32) + (ATACMD_BitNumber * 4))
 
-/* --- DCTRL Register ---*/
+/* --- DCTRL Register --- */
 
 /* Alias word address of DMAEN bit */
 #define DCTRL_OFFSET              (SDIO_OFFSET + 0x2C)
@@ -304,27 +320,27 @@ typedef enum
 #define SDIOF_BitNumber            0x0B
 #define DCTRL_SDIOF_BB            (PERIPH_BB_BASE + (DCTRL_OFFSET * 32) + (SDIOF_BitNumber * 4))
 
-/**@} end of group SDIO_Macros*/
+/**@} end of group SDIO_Macros */
 
-/** @addtogroup SDIO_Structure Data Structure
+/** @defgroup SDIO_Structures Structures
   @{
 */
 
 /**
- * @brief    SDIO Config structure definition
+ * @brief    SDIO Configure structure definition
  */
 typedef struct
 {
     SDIO_CLOCK_EDGE_T            clockEdge;
     SDIO_CLOCK_BYPASS_T          clockBypass;
     SDIO_CLOCK_POWER_SAVE_T      clockPowerSave;
-    SDIO_BUSWIDE_T               busWide;
+    SDIO_BUS_WIDE_T              busWide;
     SDIO_HARDWARE_FLOW_CONTROL_T hardwareFlowControl;
     uint8_t                      clockDiv;
-}SDIO_Config_T;
+} SDIO_Config_T;
 
 /**
- * @brief    SDIO CMD Config structure definition
+ * @brief    SDIO CMD Configure structure definition
  */
 typedef struct
 {
@@ -333,10 +349,10 @@ typedef struct
     SDIO_RESPONSE_T              response;
     SDIO_WAIT_T                  wait;
     SDIO_CPSM_T                  CPSM;
-}SDIO_CMDConfig_T;
+} SDIO_CmdConfig_T;
 
 /**
- * @brief    SDIO Data Config structure definition
+ * @brief    SDIO Data Configure structure definition
  */
 typedef struct
 {
@@ -346,16 +362,15 @@ typedef struct
     SDIO_TRANSFER_DIR_T          transferDir;
     SDIO_TRANSFER_MODE_T         transferMode;
     SDIO_DPSM_T                  DPSM;
-}SDIO_DataConfig_T;
+} SDIO_DataConfig_T;
 
-/**@} end of group SDIO_Structure*/
+/**@} end of group SDIO_Structures */
 
-
-/** @addtogroup SDIO_Fuctions Fuctions
+/** @defgroup SDIO_Functions Functions
   @{
 */
 
-/** SDIO reset and configuration */
+/* SDIO reset and configuration */
 void SDIO_Reset(void);
 void SDIO_Config(SDIO_Config_T* sdioConfig);
 void SDIO_ConfigStructInit(SDIO_Config_T* sdioConfig);
@@ -364,17 +379,17 @@ void SDIO_DisableClock(void);
 void SDIO_ConfigPowerState(SDIO_POWER_STATE_T powerState);
 uint32_t SDIO_ReadPowerState(void);
 
-/** DMA */
+/* DMA */
 void SDIO_EnableDMA(void);
 void SDIO_DisableDMA(void);
 
-/** Command */
-void SDIO_TxCommand(SDIO_CMDConfig_T *cmdConfig);
-void SDIO_TxCommandStructInit(SDIO_CMDConfig_T* cmdconfig);
+/* Command */
+void SDIO_TxCommand(SDIO_CmdConfig_T* cmdConfig);
+void SDIO_TxCommandStructInit(SDIO_CmdConfig_T* cmdconfig);
 uint8_t SDIO_ReadCommandResponse(void);
 uint32_t SDIO_ReadResponse(SDIO_RES_T res);
 
-/** SDIO data configuration */
+/* SDIO data configuration */
 void SDIO_ConfigData(SDIO_DataConfig_T* dataConfig);
 void SDIO_ConfigDataStructInit(SDIO_DataConfig_T* dataConfig);
 uint32_t SDIO_ReadDataCounter(void);
@@ -382,7 +397,7 @@ void SDIO_WriteData(uint32_t data);
 uint32_t SDIO_ReadData(void);
 uint32_t SDIO_ReadFIFOCount(void);
 
-/** SDIO mode */
+/* SDIO mode */
 void SDIO_EnableStartReadWait(void);
 void SDIO_DisableStartReadWait(void);
 void SDIO_EnableStopReadWait(void);
@@ -399,7 +414,7 @@ void SDIO_DisableCEATAInterrupt(void);
 void SDIO_EnableTxCEATA(void);
 void SDIO_DisableTxCEATA(void);
 
-/** Interrupt and flags */
+/* Interrupt and flags */
 void SDIO_EnableInterrupt(uint32_t interrupt);
 void SDIO_DisableInterrupt(uint32_t interrupt);
 uint8_t SDIO_ReadStatusFlag(SDIO_FLAG_T flag);
@@ -407,12 +422,12 @@ void SDIO_ClearStatusFlag(uint32_t flag);
 uint8_t SDIO_ReadIntFlag(SDIO_INT_T flag);
 void SDIO_ClearIntFlag(uint32_t flag);
 
-/**@} end of group SDIO_Fuctions*/
-/**@} end of group SDIO_Driver*/
-/**@} end of group Peripherals_Library*/
+/**@} end of group SDIO_Functions */
+/**@} end of group SDIO_Driver */
+/**@} end of group APM32F10x_StdPeriphDriver */
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __APM32F10X_SDIO_H */
+#endif /*__APM32F10X_SDIO_H */

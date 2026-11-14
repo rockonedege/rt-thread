@@ -1,26 +1,41 @@
 /*!
- * @file       apm32f10x_usart.c
+ * @file        apm32f10x_usart.c
  *
- * @brief      This file provides all the USART firmware functions
+ * @brief       This file provides all the USART firmware functions
  *
- * @version    V1.0.1
+ * @version     V1.0.4
  *
- * @date       2021-03-23
+ * @date        2022-12-01
  *
+ * @attention
+ *
+ *  Copyright (C) 2020-2022 Geehy Semiconductor
+ *
+ *  You may not use this file except in compliance with the
+ *  GEEHY COPYRIGHT NOTICE (GEEHY SOFTWARE PACKAGE LICENSE).
+ *
+ *  The program is only for reference, which is distributed in the hope
+ *  that it will be useful and instructional for customers to develop
+ *  their software. Unless required by applicable law or agreed to in
+ *  writing, the program is distributed on an "AS IS" BASIS, WITHOUT
+ *  ANY WARRANTY OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the GEEHY SOFTWARE PACKAGE LICENSE for the governing permissions
+ *  and limitations under the License.
  */
 
 #include "apm32f10x_usart.h"
 #include "apm32f10x_rcm.h"
 
-/** @addtogroup Peripherals_Library Standard Peripheral Library
+/** @addtogroup APM32F10x_StdPeriphDriver
   @{
 */
 
 /** @addtogroup USART_Driver USART Driver
+  * @brief USART driver modules
   @{
 */
 
-/** @addtogroup USART_Fuctions Fuctions
+/** @defgroup USART_Functions Functions
   @{
 */
 
@@ -63,7 +78,7 @@ void USART_Reset(USART_T* usart)
 }
 
 /*!
- * @brief     Config the USART peripheral according to the specified parameters in the usartConfig
+ * @brief     Configures the USART peripheral according to the specified parameters in the usartConfig
  *
  * @param     uart:         Select the USART or the UART peripheral
  *
@@ -79,7 +94,9 @@ void USART_Config(USART_T* uart, USART_Config_T* usartConfig)
 
     temp = uart->CTRL1;
     temp &= 0xE9F3;
-    temp |= usartConfig->mode | usartConfig->parity | usartConfig->wordLength;
+    temp |= (uint32_t)usartConfig->mode | \
+            (uint32_t)usartConfig->parity | \
+            (uint32_t)usartConfig->wordLength;
     uart->CTRL1 = temp;
 
     temp = uart->CTRL2;
@@ -127,11 +144,11 @@ void USART_ConfigStructInit(USART_Config_T* usartConfig)
 }
 
 /*!
- * @brief     Configuration communication clock
+ * @brief     Configures communication clock
  *
- * @param     usart:  Select the USART or the UART peripheral
+ * @param     usart: Select the USART or the UART peripheral
  *
- * @param     clockConfig:   Pointer to a USART_clockConfig_T structure
+ * @param     clockConfig: Pointer to a USART_clockConfig_T structure
  *
  * @retval    None
  *
@@ -148,11 +165,10 @@ void USART_ConfigClock(USART_T* usart, USART_ClockConfig_T* clockConfig)
 /*!
  * @brief     Fills each clockConfig member with its default value
  *
- * @param     clockConfig:   Pointer to a USART_clockConfig_T structure
+ * @param     clockConfig: Pointer to a USART_clockConfig_T structure
  *
  * @retval    None
  *
- * @note
  */
 void USART_ConfigClockStructInit(USART_ClockConfig_T* clockConfig)
 {
@@ -163,9 +179,9 @@ void USART_ConfigClockStructInit(USART_ClockConfig_T* clockConfig)
 }
 
 /*!
- * @brief     Enables the specified USART peripheral
+ * @brief     Enable the specified USART peripheral
  *
- * @param     usart:   Select the USART or the UART peripheral
+ * @param     usart: Select the USART or the UART peripheral
  *
  * @retval    None
  *
@@ -179,7 +195,7 @@ void USART_Enable(USART_T* usart)
 /*!
  * @brief     Disable the specified USART peripheral
  *
- * @param     usart:   Select the USART or the UART peripheral
+ * @param     usart: Select the USART or the UART peripheral
  *
  * @retval    None
  *
@@ -191,11 +207,11 @@ void USART_Disable(USART_T* usart)
 }
 
 /*!
- * @brief     Enables the USART DMA interface
+ * @brief     Enable the USART DMA interface
  *
- * @param     usart:   Select the USART or the UART peripheral
+ * @param     usart: Select the USART or the UART peripheral
  *
- * @param     dmaReq:  Specifies the DMA request
+ * @param     dmaReq: Specifies the DMA request
  *                     This parameter can be one of the following values:
  *                     @arg USART_DMA_TX:     USART DMA receive request
  *                     @arg USART_DMA_RX:     USART DMA transmit request
@@ -213,9 +229,9 @@ void USART_EnableDMA(USART_T* usart, USART_DMA_T dmaReq)
 /*!
  * @brief     Disable the USART DMA interface
  *
- * @param     usart:   Select the USART or the UART peripheral
+ * @param     usart: Select the USART or the UART peripheral
  *
- * @param     dmaReq:  Specifies the DMA request
+ * @param     dmaReq: Specifies the DMA request
  *                     This parameter can be one of the following values:
  *                     @arg USART_DMA_TX:     USART DMA receive request
  *                     @arg USART_DMA_RX:     USART DMA transmit request
@@ -233,7 +249,7 @@ void USART_DisableDMA(USART_T* usart, USART_DMA_T dmaReq)
 /*!
  * @brief     Configures the address of the USART node
  *
- * @param     usart:   Select the USART or the UART peripheral
+ * @param     usart: Select the USART or the UART peripheral
  *
  * @param     address: Indicates the address of the USART node
  *
@@ -249,12 +265,12 @@ void USART_Address(USART_T* usart, uint8_t address)
 /*!
  * @brief     Selects the USART WakeUp method.
  *
- * @param     usart:  Select the USART or the UART peripheral
+ * @param     usart: Select the USART or the UART peripheral
  *
  * @param     wakeup: Specifies the selected USART auto baud rate method
- *                    This parameter can be one of the following values:
- *                    @arg USART_WAKEUP_IDLE_LINE:    WakeUp by an idle line detection
- *                    @arg USART_WAKEUP_ADDRESS_MARK: WakeUp by an address mark
+ *                   This parameter can be one of the following values:
+ *                   @arg USART_WAKEUP_IDLE_LINE:    WakeUp by an idle line detection
+ *                   @arg USART_WAKEUP_ADDRESS_MARK: WakeUp by an address mark
  *
  * @retval    None
  *
@@ -294,7 +310,7 @@ void USART_DisableMuteMode(USART_T* usart)
 }
 
 /*!
- * @brief     Sets the USART LIN Break detection length
+ * @brief     Set the USART LIN Break detection length
  *
  * @param     usart:   Select the USART or the UART peripheral
  *
@@ -313,7 +329,7 @@ void USART_ConfigLINBreakDetectLength(USART_T* usart, USART_LBDL_T length)
 }
 
 /*!
- * @brief     Enables the USART LIN MODE
+ * @brief     Enable the USART LIN MODE
  *
  * @param     usart:   Select the USART or the UART peripheral
  *
@@ -341,7 +357,7 @@ void USART_DisableLIN(USART_T* usart)
 }
 
 /*!
- * @brief     Transmitter Enable
+ * @brief     Transmitter enable
  *
  * @param     usart: Select the USART or the UART peripheral
  *
@@ -355,7 +371,7 @@ void USART_EnableTx(USART_T* usart)
 }
 
 /*!
- * @brief     Transmitter Disable
+ * @brief     Transmitter disable
  *
  * @param     usart: Select the USART or the UART peripheral
  *
@@ -401,7 +417,7 @@ void USART_DisableRx(USART_T* usart)
  *
  * @param     usart: Select the USART or the UART peripheral
  *
- * @param     data:  the data to transmit
+ * @param     data: the data to transmit
  *
  * @retval    None
  *
@@ -413,7 +429,7 @@ void USART_TxData(USART_T* usart, uint16_t data)
 }
 
 /*!
- * @brief     Returns the most recent received data
+ * @brief     Return the most recent received data
  *
  * @param     usart: Select the USART or the UART peripheral
  *
@@ -441,9 +457,9 @@ void USART_TxBreak(USART_T* usart)
 }
 
 /*!
- * @brief     Sets the specified USART guard time
+ * @brief     Set the specified USART guard time
  *
- * @param     usart:     Select the USART or the UART peripheral
+ * @param     usart: Select the USART or the UART peripheral
  *
  * @param     guardTime: Specifies the guard time
  *
@@ -457,11 +473,11 @@ void USART_ConfigGuardTime(USART_T* usart, uint8_t guardTime)
 }
 
 /*!
- * @brief     Sets the system clock divider number
+ * @brief     Set the system clock divider number
  *
  * @param     usart: Select the USART or the UART peripheral
  *
- * @param     div:   specifies the divider number
+ * @param     div: specifies the divider number
  *
  * @retval    None
  *
@@ -473,7 +489,7 @@ void USART_ConfigPrescaler(USART_T* usart, uint8_t div)
 }
 
 /*!
- * @brief     Enables the USART Smart Card mode
+ * @brief     Enable the USART Smart Card mode
  *
  * @param     usart: Select the USART or the UART peripheral
  *
@@ -501,7 +517,7 @@ void USART_DisableSmartCard(USART_T* usart)
 }
 
 /*!
- * @brief     Enables NACK transmission
+ * @brief     Enable NACK transmission
  *
  * @param     usart: Select the USART or the UART peripheral
  *
@@ -529,7 +545,7 @@ void USART_DisableSmartCardNACK(USART_T* usart)
 }
 
 /*!
- * @brief     Enables USART Half Duplex communication
+ * @brief     Enable USART Half Duplex communication
  *
  * @param     usart: Select the USART or the UART peripheral
  *
@@ -559,12 +575,12 @@ void USART_DisableHalfDuplex(USART_T* usart)
 /*!
  * @brief     Configures the USART's IrDA interface
  *
- * @param     usart:    Select the USART or the UART peripheral
+ * @param     usart: Select the USART or the UART peripheral
  *
  * @param     IrDAMode: Specifies the IrDA mode
- *                      This parameter can be one of the following values:
- *                      @arg USART_IRDALP_NORMAL:   Normal
- *                      @arg USART_IRDALP_LOWPOWER: Low-Power
+ *                     This parameter can be one of the following values:
+ *                     @arg USART_IRDALP_NORMAL:   Normal
+ *                     @arg USART_IRDALP_LOWPOWER: Low-Power
  * @retval    None
  *
  * @note      The usart can be USART1, USART2, USART3, UART4 and UART5
@@ -575,7 +591,7 @@ void USART_ConfigIrDA(USART_T* usart, USART_IRDALP_T IrDAMode)
 }
 
 /*!
- * @brief     Enables the USART's IrDA interface
+ * @brief     Enable the USART's IrDA interface
  *
  * @param     usart: Select the USART or the UART peripheral
  *
@@ -605,18 +621,18 @@ void USART_DisableIrDA(USART_T* usart)
 /*!
  * @brief     Enable the specified USART interrupts
  *
- * @param     usart:     Select the USART or the UART peripheral
+ * @param     usart: Select the USART or the UART peripheral
  *
- * @param     interrupt:  Specifies the USART interrupts sources
- *                        The parameter can be one of following values:
- *                        @arg USART_INT_PE:    Parity error interrupt
- *                        @arg USART_INT_TXBE:  Tansmit data buffer empty interrupt
- *                        @arg USART_INT_TXC:   Transmission complete interrupt
- *                        @arg USART_INT_RXBNE: Receive data buffer not empty interrupt
- *                        @arg USART_INT_IDLE:  Idle line detection interrupt
- *                        @arg USART_INT_LBD:   LIN break detection interrupt
- *                        @arg USART_INT_CTS:   CTS change interrupt
- *                        @arg USART_INT_ERR:   Error interrupt(Frame error, noise error, overrun error)
+ * @param     interrupt: Specifies the USART interrupts sources
+ *                     The parameter can be one of following values:
+ *                     @arg USART_INT_PE:    Parity error interrupt
+ *                     @arg USART_INT_TXBE:  Tansmit data buffer empty interrupt
+ *                     @arg USART_INT_TXC:   Transmission complete interrupt
+ *                     @arg USART_INT_RXBNE: Receive data buffer not empty interrupt
+ *                     @arg USART_INT_IDLE:  Idle line detection interrupt
+ *                     @arg USART_INT_LBD:   LIN break detection interrupt
+ *                     @arg USART_INT_CTS:   CTS change interrupt
+ *                     @arg USART_INT_ERR:   Error interrupt(Frame error, noise error, overrun error)
  *
  * @retval    None
  *
@@ -628,37 +644,37 @@ void USART_EnableInterrupt(USART_T* usart, USART_INT_T interrupt)
 
     temp = (uint32_t)(interrupt & 0xffff);
 
-    if (interrupt & 0X10000)
+    if (interrupt & 0x10000)
     {
         usart->CTRL1 |= temp;
     }
 
-    if (interrupt & 0X20000)
+    if (interrupt & 0x20000)
     {
         usart->CTRL2 |= temp;
     }
 
-    if (interrupt & 0X40000)
+    if (interrupt & 0x40000)
     {
         usart->CTRL3 |= temp;
     }
 }
 
 /*!
- * @brief     Disables the specified USART interrupts
+ * @brief     Disable the specified USART interrupts
  *
- * @param     usart:      Select the USART or the UART peripheral
+ * @param     usart: Select the USART or the UART peripheral
  *
- * @param     interrupt:  Specifies the USART interrupts sources
- *                        The parameter can be one of following values:
- *                        @arg USART_INT_PE:    Parity error interrupt
- *                        @arg USART_INT_TXBE:  Tansmit data buffer empty interrupt
- *                        @arg USART_INT_TXC:   Transmission complete interrupt
- *                        @arg USART_INT_RXBNE: Receive data buffer not empty interrupt
- *                        @arg USART_INT_IDLE:  Idle line detection interrupt
- *                        @arg USART_INT_LBD:   LIN break detection interrupt
- *                        @arg USART_INT_CTS:   CTS change interrupt
- *                        @arg USART_INT_ERR:   Error interrupt(Frame error, noise error, overrun error)
+ * @param     interrupt: Specifies the USART interrupts sources
+ *                     The parameter can be one of following values:
+ *                     @arg USART_INT_PE:    Parity error interrupt
+ *                     @arg USART_INT_TXBE:  Tansmit data buffer empty interrupt
+ *                     @arg USART_INT_TXC:   Transmission complete interrupt
+ *                     @arg USART_INT_RXBNE: Receive data buffer not empty interrupt
+ *                     @arg USART_INT_IDLE:  Idle line detection interrupt
+ *                     @arg USART_INT_LBD:   LIN break detection interrupt
+ *                     @arg USART_INT_CTS:   CTS change interrupt
+ *                     @arg USART_INT_ERR:   Error interrupt(Frame error, noise error, overrun error)
  *
  * @retval    None
  *
@@ -670,17 +686,17 @@ void USART_DisableInterrupt(USART_T* usart, USART_INT_T interrupt)
 
     temp = (uint32_t)~(interrupt & 0xffff);
 
-    if (interrupt & 0X10000)
+    if (interrupt & 0x10000)
     {
         usart->CTRL1 &= temp;
     }
 
-    if (interrupt & 0X20000)
+    if (interrupt & 0x20000)
     {
         usart->CTRL2 &= temp;
     }
 
-    if (interrupt & 0X40000)
+    if (interrupt & 0x40000)
     {
         usart->CTRL3 &= temp;
     }
@@ -691,18 +707,18 @@ void USART_DisableInterrupt(USART_T* usart, USART_INT_T interrupt)
  *
  * @param     usart: Select the USART or the UART peripheral
  *
- * @param     flag:  Specifies the flag to check
- *                   The parameter can be one of following values:
- *                   @arg USART_FLAG_CTS:    CTS Change flag (not available for UART4 and UART5)
- *                   @arg USART_FLAG_LBD:    LIN Break detection flag
- *                   @arg USART_FLAG_TXBE:   Transmit data buffer empty flag
- *                   @arg USART_FLAG_TXC:    Transmission Complete flag
- *                   @arg USART_FLAG_RXBNE:  Receive data buffer not empty flag
- *                   @arg USART_FLAG_IDLE:   Idle Line detection flag
- *                   @arg USART_FLAG_OVRE:   OverRun Error flag
- *                   @arg USART_FLAG_NE:     Noise Error flag
- *                   @arg USART_FLAG_FE:     Framing Error flag
- *                   @arg USART_FLAG_PE:     Parity Error flag
+ * @param     flag: Specifies the flag to check
+ *                     The parameter can be one of following values:
+ *                     @arg USART_FLAG_CTS:    CTS Change flag (not available for UART4 and UART5)
+ *                     @arg USART_FLAG_LBD:    LIN Break detection flag
+ *                     @arg USART_FLAG_TXBE:   Transmit data buffer empty flag
+ *                     @arg USART_FLAG_TXC:    Transmission Complete flag
+ *                     @arg USART_FLAG_RXBNE:  Receive data buffer not empty flag
+ *                     @arg USART_FLAG_IDLE:   Idle Line detection flag
+ *                     @arg USART_FLAG_OVRE:   OverRun Error flag
+ *                     @arg USART_FLAG_NE:     Noise Error flag
+ *                     @arg USART_FLAG_FE:     Framing Error flag
+ *                     @arg USART_FLAG_PE:     Parity Error flag
  *
  * @retval    The new state of flag (SET or RESET)
  *
@@ -714,16 +730,16 @@ uint8_t USART_ReadStatusFlag(USART_T* usart, USART_FLAG_T flag)
 }
 
 /*!
- * @brief     Clears the USARTx's pending flags
+ * @brief     Clear the USARTx's pending flags
  *
- * @param     usart:   Select the USART or the UART peripheral
+ * @param     usart: Select the USART or the UART peripheral
  *
- * @param     flag:  Specifies the flag to clear
- *                   The parameter can be one of following values:
- *                   @arg USART_FLAG_CTS:    CTS Change flag (not available for UART4 and UART5)
- *                   @arg USART_FLAG_LBD:    LIN Break detection flag
- *                   @arg USART_FLAG_TXC:    Transmission Complete flag
- *                   @arg USART_FLAG_RXBNE:  Receive data buffer not empty flag
+ * @param     flag: Specifies the flag to clear
+ *                     The parameter can be one of following values:
+ *                     @arg USART_FLAG_CTS:    CTS Change flag (not available for UART4 and UART5)
+ *                     @arg USART_FLAG_LBD:    LIN Break detection flag
+ *                     @arg USART_FLAG_TXC:    Transmission Complete flag
+ *                     @arg USART_FLAG_RXBNE:  Receive data buffer not empty flag
  *
  * @retval    None
  *
@@ -740,17 +756,17 @@ void USART_ClearStatusFlag(USART_T* usart, USART_FLAG_T flag)
  * @param     usart: Select the USART or the UART peripheral
  *
  * @param     flag:  Specifies the USART interrupt source to check
- *                        The parameter can be one of following values:
- *                        @arg USART_INT_TXBE:  Tansmit data buffer empty interrupt
- *                        @arg USART_INT_TXC:   Transmission complete interrupt
- *                        @arg USART_INT_RXBNE: Receive data buffer not empty interrupt
- *                        @arg USART_INT_IDLE:  Idle line detection interrupt
- *                        @arg USART_INT_LBD:   LIN break detection interrupt
- *                        @arg USART_INT_CTS:   CTS change interrupt
- *                        @arg USART_INT_OVRE:  OverRun Error interruptpt
- *                        @arg USART_INT_NE:    Noise Error interrupt
- *                        @arg USART_INT_FE:    Framing Error interrupt
- *                        @arg USART_INT_PE:    Parity error interrupt
+ *                     The parameter can be one of following values:
+ *                     @arg USART_INT_TXBE:  Tansmit data buffer empty interrupt
+ *                     @arg USART_INT_TXC:   Transmission complete interrupt
+ *                     @arg USART_INT_RXBNE: Receive data buffer not empty interrupt
+ *                     @arg USART_INT_IDLE:  Idle line detection interrupt
+ *                     @arg USART_INT_LBD:   LIN break detection interrupt
+ *                     @arg USART_INT_CTS:   CTS change interrupt
+ *                     @arg USART_INT_OVRE:  OverRun Error interruptpt
+ *                     @arg USART_INT_NE:    Noise Error interrupt
+ *                     @arg USART_INT_FE:    Framing Error interrupt
+ *                     @arg USART_INT_PE:    Parity error interrupt
  *
  * @retval    The new state of flag (SET or RESET)
  *
@@ -786,16 +802,16 @@ uint8_t USART_ReadIntFlag(USART_T* usart, USART_INT_T flag)
 }
 
 /*!
- * @brief     Clears the USART interrupt pending bits
+ * @brief     Clear the USART interrupt pending bits
  *
  * @param     usart: Select the USART or the UART peripheral
  *
- * @param     flag:  Specifies the interrupt pending bit to clear
- *                   The parameter can be one of following values:
- *                   @arg USART_INT_RXBNE: Receive data buffer not empty interrupt
- *                   @arg USART_INT_TXC:   Transmission complete interrupt
- *                   @arg USART_INT_LBD:   LIN break detection interrupt
- *                   @arg USART_INT_CTS:   CTS change interrupt
+ * @param     flag: Specifies the interrupt pending bit to clear
+ *                     The parameter can be one of following values:
+ *                     @arg USART_INT_RXBNE: Receive data buffer not empty interrupt
+ *                     @arg USART_INT_TXC:   Transmission complete interrupt
+ *                     @arg USART_INT_LBD:   LIN break detection interrupt
+ *                     @arg USART_INT_CTS:   CTS change interrupt
  *
  * @retval    None
  *
@@ -811,6 +827,6 @@ void USART_ClearIntFlag(USART_T* usart, USART_INT_T flag)
     usart->STS &= (uint32_t)~srFlag;
 }
 
-/**@} end of group USART_Fuctions*/
-/**@} end of group USART_Driver*/
-/**@} end of group Peripherals_Library*/
+/**@} end of group USART_Functions */
+/**@} end of group USART_Driver */
+/**@} end of group APM32F10x_StdPeriphDriver */

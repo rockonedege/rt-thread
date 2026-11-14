@@ -1,18 +1,33 @@
 /*!
- * @file       apm32f10x_misc.c
+ * @file        apm32f10x_misc.c
  *
- * @brief      This file provides all the miscellaneous firmware functions.
+ * @brief       This file provides all the miscellaneous firmware functions.
  *             Include NVIC,SystemTick and Power management.
  *
- * @version    V1.0.1
+ * @version     V1.0.4
  *
- * @date       2021-03-23
+ * @date        2022-12-01
  *
+ * @attention
+ *
+ *  Copyright (C) 2020-2022 Geehy Semiconductor
+ *
+ *  You may not use this file except in compliance with the
+ *  GEEHY COPYRIGHT NOTICE (GEEHY SOFTWARE PACKAGE LICENSE).
+ *
+ *  The program is only for reference, which is distributed in the hope
+ *  that it will be useful and instructional for customers to develop
+ *  their software. Unless required by applicable law or agreed to in
+ *  writing, the program is distributed on an "AS IS" BASIS, WITHOUT
+ *  ANY WARRANTY OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the GEEHY SOFTWARE PACKAGE LICENSE for the governing permissions
+ *  and limitations under the License.
  */
 
+/* Includes */
 #include "apm32f10x_misc.h"
 
-/** @addtogroup Peripherals_Library Standard Peripheral Library
+/** @addtogroup APM32F10x_StdPeriphDriver
   @{
 */
 
@@ -20,16 +35,16 @@
   @{
 */
 
-/** @addtogroup MISC_Macros Macros
+/** @defgroup MISC_Macros Macros
   @{
 */
 
 #define AIRCR_VECTKEY_MASK    ((uint32_t)0x05FA0000)
 
-/**@} end of group I2C_Macros*/
+/**@} end of group MISC_Macros*/
 
 
-/** @addtogroup MISC_Fuctions Fuctions
+/** @defgroup MISC_Functions Functions
   @{
 */
 
@@ -48,7 +63,7 @@
  */
 void NVIC_ConfigPriorityGroup(NVIC_PRIORITY_GROUP_T priorityGroup)
 {
-   SCB->AIRCR = AIRCR_VECTKEY_MASK | priorityGroup;
+    SCB->AIRCR = AIRCR_VECTKEY_MASK | priorityGroup;
 }
 
 /*!
@@ -65,53 +80,53 @@ void NVIC_ConfigPriorityGroup(NVIC_PRIORITY_GROUP_T priorityGroup)
  */
 void NVIC_EnableIRQRequest(IRQn_Type irq, uint8_t preemptionPriority, uint8_t subPriority)
 {
-   uint32_t tempPriority, tempPrePri, tempSubPri;
-   uint32_t priorityGrp;
+    uint32_t tempPriority, tempPrePri, tempSubPri;
+    uint32_t priorityGrp;
 
-   /** Get priority group */
-   priorityGrp = (SCB->AIRCR) & (uint32_t)0x700U;
+    /* Get priority group */
+    priorityGrp = (SCB->AIRCR) & (uint32_t)0x700U;
 
-   /** get pre-emption priority and subpriority */
-   switch(priorityGrp)
-   {
-      case NVIC_PRIORITY_GROUP_0:
-         tempPrePri = 0;
-         tempSubPri = 4;
-         break;
+    /* get pre-emption priority and subpriority */
+    switch (priorityGrp)
+    {
+        case NVIC_PRIORITY_GROUP_0:
+            tempPrePri = 0;
+            tempSubPri = 4;
+            break;
 
-      case NVIC_PRIORITY_GROUP_1:
-         tempPrePri = 1;
-         tempSubPri = 3;
-         break;
+        case NVIC_PRIORITY_GROUP_1:
+            tempPrePri = 1;
+            tempSubPri = 3;
+            break;
 
-      case NVIC_PRIORITY_GROUP_2:
-         tempPrePri = 2;
-         tempSubPri = 2;
-         break;
+        case NVIC_PRIORITY_GROUP_2:
+            tempPrePri = 2;
+            tempSubPri = 2;
+            break;
 
-      case NVIC_PRIORITY_GROUP_3:
-         tempPrePri = 3;
-         tempSubPri = 1;
-         break;
+        case NVIC_PRIORITY_GROUP_3:
+            tempPrePri = 3;
+            tempSubPri = 1;
+            break;
 
-      case NVIC_PRIORITY_GROUP_4:
-         tempPrePri = 4;
-         tempSubPri = 0;
-         break;
+        case NVIC_PRIORITY_GROUP_4:
+            tempPrePri = 4;
+            tempSubPri = 0;
+            break;
 
-      default:
-         NVIC_ConfigPriorityGroup(NVIC_PRIORITY_GROUP_0);
-         tempPrePri = 0;
-         tempSubPri = 4;
-         break;
-   }
+        default:
+            NVIC_ConfigPriorityGroup(NVIC_PRIORITY_GROUP_0);
+            tempPrePri = 0;
+            tempSubPri = 4;
+            break;
+    }
 
-   tempPrePri = 4 - tempPrePri;
-   tempSubPri = 4 - tempSubPri;
-   tempPriority = preemptionPriority << tempPrePri;
-   tempPriority |= subPriority & (0x0f >> tempSubPri);
-   tempPriority <<= 4;
-   NVIC->IP[irq] = (uint8_t)tempPriority;
+    tempPrePri = 4 - tempPrePri;
+    tempSubPri = 4 - tempSubPri;
+    tempPriority = preemptionPriority << tempPrePri;
+    tempPriority |= subPriority & (0x0f >> tempSubPri);
+    tempPriority <<= 4;
+    NVIC->IP[irq] = (uint8_t)tempPriority;
 
     /* enable the selected IRQ */
     NVIC->ISER[irq >> 0x05U] = (uint32_t)0x01U << (irq & (uint8_t)0x1FU);
@@ -160,9 +175,8 @@ void NVIC_ConfigVectorTable(NVIC_VECT_TAB_T vectTab, uint32_t offset)
  */
 void NVIC_SetSystemLowPower(NVIC_LOWPOWER_T lowPowerMode)
 {
-   SCB->SCR |= lowPowerMode;
+    SCB->SCR |= lowPowerMode;
 }
-
 
 /*!
  * @brief     reset the state of the low power mode
@@ -177,7 +191,7 @@ void NVIC_SetSystemLowPower(NVIC_LOWPOWER_T lowPowerMode)
  */
 void NVIC_ResetystemLowPower(NVIC_LOWPOWER_T lowPowerMode)
 {
-   SCB->SCR &= (uint32_t)(~(uint32_t)lowPowerMode);
+    SCB->SCR &= (uint32_t)(~(uint32_t)lowPowerMode);
 }
 
 /*!
@@ -192,16 +206,16 @@ void NVIC_ResetystemLowPower(NVIC_LOWPOWER_T lowPowerMode)
  */
 void SysTick_ConfigCLKSource(SYSTICK_CLK_SOURCE_T clkSource)
 {
-   if (clkSource == SYSTICK_CLK_SOURCE_HCLK)
-   {
-      SysTick->CTRL |= (uint32_t)BIT2;
-   }
-   else
-   {
-      SysTick->CTRL &= (uint32_t)(~BIT2);
-   }
+    if (clkSource == SYSTICK_CLK_SOURCE_HCLK)
+    {
+        SysTick->CTRL |= (uint32_t)BIT2;
+    }
+    else
+    {
+        SysTick->CTRL &= (uint32_t)(~BIT2);
+    }
 }
 
-/**@} end of group MISC_Fuctions*/
+/**@} end of group MISC_Functions*/
 /**@} end of group MISC_Driver */
-/**@} end of group Peripherals_Library*/
+/**@} end of group APM32F10x_StdPeriphDriver*/

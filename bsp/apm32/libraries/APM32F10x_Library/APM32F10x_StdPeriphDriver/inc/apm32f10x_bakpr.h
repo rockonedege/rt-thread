@@ -3,22 +3,37 @@
  *
  * @brief       This file contains all the functions prototypes for the BAKPR firmware library.
  *
- * @version     V1.0.1
+ * @version     V1.0.4
  *
- * @date        2021-03-23
+ * @date        2022-12-01
  *
+ * @attention
+ *
+ *  Copyright (C) 2020-2022 Geehy Semiconductor
+ *
+ *  You may not use this file except in compliance with the
+ *  GEEHY COPYRIGHT NOTICE (GEEHY SOFTWARE PACKAGE LICENSE).
+ *
+ *  The program is only for reference, which is distributed in the hope
+ *  that it will be useful and instructional for customers to develop
+ *  their software. Unless required by applicable law or agreed to in
+ *  writing, the program is distributed on an "AS IS" BASIS, WITHOUT
+ *  ANY WARRANTY OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the GEEHY SOFTWARE PACKAGE LICENSE for the governing permissions
+ *  and limitations under the License.
  */
 
 #ifndef __APM32F10X_BAKPR_H
 #define __APM32F10X_BAKPR_H
 
+/* Includes */
 #include "apm32f10x.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/** @addtogroup Peripherals_Library Standard Peripheral Library
+/** @addtogroup APM32F10x_StdPeriphDriver
   @{
 */
 
@@ -26,7 +41,7 @@ extern "C" {
   @{
 */
 
-/** @addtogroup BAKPR_Enumerations Enumerations
+/** @defgroup BAKPR_Enumerations Enumerations
   @{
 */
 
@@ -102,11 +117,11 @@ typedef enum
 /**@} end of group BAKPR_Enumerations*/
 
 
-/** @addtogroup BAKPR_Fuctions Fuctions
+/** @defgroup BAKPR_Functions Functions
   @{
 */
 
-/** BAKPR reset and configuration */
+/* BAKPR reset and configuration */
 void BAKPR_Reset(void);
 void BAKPR_ConfigTamperPinLevel(BAKPR_TAMPER_PIN_LEVEL_T value);
 void BAKPR_EnableTamperPin(void);
@@ -116,7 +131,7 @@ void BAKPR_ConfigRTCCalibrationValue(uint8_t calibrationValue);
 void BAKPR_ConfigBackupRegister(BAKPR_DATA_T bakrData, uint16_t data);
 uint16_t BAKPR_ReadBackupRegister(BAKPR_DATA_T bakrData);
 
-/** Interrupts and flags */
+/* Interrupts and flags */
 void BAKPR_EnableInterrupt(void);
 void BAKPR_DisableInterrupt(void);
 uint8_t BAKPR_ReadStatusFlag(void);
@@ -124,9 +139,9 @@ void BAKPR_ClearStatusFlag(void);
 uint8_t BAKPR_ReadIntFlag(void);
 void BAKPR_ClearIntFlag(void);
 
-/**@} end of group BAKPR_Fuctions*/
+/**@} end of group BAKPR_Functions*/
 /**@} end of group BAKPR_Driver */
-/**@} end of group Peripherals_Library*/
+/**@} end of group APM32F10x_StdPeriphDriver */
 
 #ifdef __cplusplus
 }

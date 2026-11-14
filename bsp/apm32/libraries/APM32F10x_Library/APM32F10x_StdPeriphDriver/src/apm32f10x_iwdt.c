@@ -3,15 +3,30 @@
  *
  * @brief       This file provides all the IWDT firmware functions
  *
- * @version     V1.0.1
+ * @version     V1.0.4
  *
- * @date        2021-03-23
+ * @date        2022-12-01
  *
+ * @attention
+ *
+ *  Copyright (C) 2020-2022 Geehy Semiconductor
+ *
+ *  You may not use this file except in compliance with the
+ *  GEEHY COPYRIGHT NOTICE (GEEHY SOFTWARE PACKAGE LICENSE).
+ *
+ *  The program is only for reference, which is distributed in the hope
+ *  that it will be useful and instructional for customers to develop
+ *  their software. Unless required by applicable law or agreed to in
+ *  writing, the program is distributed on an "AS IS" BASIS, WITHOUT
+ *  ANY WARRANTY OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the GEEHY SOFTWARE PACKAGE LICENSE for the governing permissions
+ *  and limitations under the License.
  */
 
+/* Includes */
 #include "apm32f10x_iwdt.h"
 
-/** @addtogroup Peripherals_Library Standard Peripheral Library
+/** @addtogroup APM32F10x_StdPeriphDriver
   @{
 */
 
@@ -19,7 +34,7 @@
   @{
 */
 
-/** @addtogroup IWDT_Fuctions Fuctions
+/** @defgroup IWDT_Functions Functions
   @{
 */
 
@@ -113,13 +128,12 @@ void IWDT_ConfigDivider(uint8_t div)
  *
  * @retval       status of IWDT_FLAG (SET or RESET)
  *
- * @note
  */
 uint8_t IWDT_ReadStatusFlag(uint16_t flag)
 {
     uint8_t bitStatus = RESET;
 
-    if((IWDT->STS & flag) != (uint32_t)RESET)
+    if ((IWDT->STS & flag) != (uint32_t)RESET)
     {
         bitStatus = SET;
     }
@@ -130,6 +144,6 @@ uint8_t IWDT_ReadStatusFlag(uint16_t flag)
     return bitStatus;
 }
 
-/**@} end of group IWDT_Fuctions*/
+/**@} end of group IWDT_Functions*/
 /**@} end of group IWDT_Driver */
-/**@} end of group Peripherals_Library*/
+/**@} end of group APM32F10x_StdPeriphDriver*/

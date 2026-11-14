@@ -34,12 +34,12 @@ static uint32_t _SysTick_Config(rt_uint32_t ticks)
 #if defined(RT_USING_USER_MAIN) && defined(RT_USING_HEAP)
 #define RT_HEAP_SIZE 2048
 static uint32_t rt_heap[RT_HEAP_SIZE];/* heap default size: 4K(1024 * 4)*/
-RT_WEAK void *rt_heap_begin_get(void)
+rt_weak void *rt_heap_begin_get(void)
 {
     return rt_heap;
 }
 
-RT_WEAK void *rt_heap_end_get(void)
+rt_weak void *rt_heap_end_get(void)
 {
     return rt_heap + RT_HEAP_SIZE;
 }
@@ -64,7 +64,7 @@ void rt_hw_board_init()
 #if defined(RT_USING_USER_MAIN) && defined(RT_USING_HEAP)
     rt_system_heap_init(rt_heap_begin_get(), rt_heap_end_get());
 #endif
-#ifdef RT_USING_CONSOLE
+#if defined(RT_USING_CONSOLE) && defined(RT_USING_DEVICE)
     rt_console_set_device(RT_CONSOLE_DEVICE_NAME);
 #endif
 }

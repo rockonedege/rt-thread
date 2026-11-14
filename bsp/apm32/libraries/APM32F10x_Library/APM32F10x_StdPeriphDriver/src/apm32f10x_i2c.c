@@ -1,18 +1,33 @@
 /*!
- * @file       apm32f10x_i2c.c
+ * @file        apm32f10x_i2c.c
  *
- * @brief      This file provides all the I2C firmware functions
+ * @brief       This file provides all the I2C firmware functions
  *
- * @version    V1.0.1
+ * @version     V1.0.4
  *
- * @date       2021-03-23
+ * @date        2022-12-01
  *
+ * @attention
+ *
+ *  Copyright (C) 2020-2022 Geehy Semiconductor
+ *
+ *  You may not use this file except in compliance with the
+ *  GEEHY COPYRIGHT NOTICE (GEEHY SOFTWARE PACKAGE LICENSE).
+ *
+ *  The program is only for reference, which is distributed in the hope
+ *  that it will be useful and instructional for customers to develop
+ *  their software. Unless required by applicable law or agreed to in
+ *  writing, the program is distributed on an "AS IS" BASIS, WITHOUT
+ *  ANY WARRANTY OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the GEEHY SOFTWARE PACKAGE LICENSE for the governing permissions
+ *  and limitations under the License.
  */
 
+/* Includes */
 #include "apm32f10x_i2c.h"
 #include "apm32f10x_rcm.h"
 
-/** @addtogroup Peripherals_Library Standard Peripheral Library
+/** @addtogroup APM32F10x_StdPeriphDriver
   @{
 */
 
@@ -20,7 +35,7 @@
   @{
 */
 
-/** @addtogroup I2C_Fuctions Fuctions
+/** @defgroup I2C_Functions Functions
   @{
 */
 
@@ -33,7 +48,7 @@
  */
 void I2C_Reset(I2C_T* i2c)
 {
-    if(i2c == I2C1)
+    if (i2c == I2C1)
     {
         RCM_EnableAPB1PeriphReset(RCM_APB1_PERIPH_I2C1);
         RCM_DisableAPB1PeriphReset(RCM_APB1_PERIPH_I2C1);
@@ -60,30 +75,30 @@ void I2C_Config(I2C_T* i2c, I2C_Config_T* i2cConfig)
     uint32_t PCLK1 = 8000000, PCLK2 = 0;
     uint16_t result = 0x04;
 
-    i2c->SWITCH = 0;
+    i2c->I2C_SWITCH = 0;
 
-    /** I2C CTRL2 Configuration */
+    /* I2C CTRL2 Configuration */
     RCM_ReadPCLKFreq(&PCLK1, &PCLK2);
     freqrange = PCLK1 / 1000000;
-    i2c->CTRL2_B.CLKFCFG= freqrange;
+    i2c->CTRL2_B.CLKFCFG = freqrange;
 
-    /** I2C CLKCTRL Configuration */
+    /* I2C CLKCTRL Configuration */
     i2c->CTRL1_B.I2CEN = BIT_RESET;
 
-    if(i2cConfig->clockSpeed <= 100000)
+    if (i2cConfig->clockSpeed <= 100000)
     {
         result = (PCLK1 / (i2cConfig->clockSpeed << 1));
-        if(result < 0x04)
+        if (result < 0x04)
         {
             result = 0x04;
         }
         i2c->RISETMAX = freqrange + 1;
         tmpreg |= result;
     }
-    /** Configure speed in fast mode */
+    /* Configure speed in fast mode */
     else
     {
-        if(i2cConfig->dutyCycle == I2C_DUTYCYCLE_2)
+        if (i2cConfig->dutyCycle == I2C_DUTYCYCLE_2)
         {
             result = (PCLK1 / (i2cConfig->clockSpeed * 3));
         }
@@ -93,7 +108,7 @@ void I2C_Config(I2C_T* i2c, I2C_Config_T* i2cConfig)
             result |= I2C_DUTYCYCLE_16_9;
         }
 
-        if((result & 0x0FFF) == 0)
+        if ((result & 0x0FFF) == 0)
         {
             result |= 0x0001;
         }
@@ -104,7 +119,7 @@ void I2C_Config(I2C_T* i2c, I2C_Config_T* i2cConfig)
     i2c->CLKCTRL = tmpreg;
     i2c->CTRL1_B.I2CEN = BIT_SET;
 
-    /** i2c CTRL1 Configuration  */
+    /* i2c CTRL1 Configuration  */
     i2c->CTRL1_B.ACKEN = BIT_RESET;
     i2c->CTRL1_B.SMBTCFG = BIT_RESET;
     i2c->CTRL1_B.SMBEN = BIT_RESET;
@@ -331,7 +346,7 @@ uint8_t I2C_RxData(I2C_T* i2c)
  */
 void I2C_Tx7BitAddress(I2C_T* i2c, uint8_t address, I2C_DIRECTION_T direction)
 {
-    if(direction != I2C_DIRECTION_TX)
+    if (direction != I2C_DIRECTION_TX)
     {
         i2c->DATA_B.DATA = address | 0x0001;
     }
@@ -365,28 +380,28 @@ uint16_t I2C_ReadRegister(I2C_T* i2c, I2C_REGISTER_T i2cRegister)
 {
     switch (i2cRegister)
     {
-    case I2C_REGISTER_CTRL1:
-        return i2c->CTRL1;
-    case I2C_REGISTER_CTRL2:
-        return i2c->CTRL2;
-    case I2C_REGISTER_SADDR1:
-        return i2c->SADDR1;
-    case I2C_REGISTER_SADDR2:
-        return i2c->SADDR2;
-    case I2C_REGISTER_DATA:
-        return i2c->DATA;
-    case I2C_REGISTER_STS1:
-        return i2c->STS1;
-    case I2C_REGISTER_STS2:
-        return i2c->STS2;
-    case I2C_REGISTER_CLKCTRL:
-        return i2c->CLKCTRL;
-    case I2C_REGISTER_RISETMAX:
-        return i2c->RISETMAX;
-    case I2C_REGISTER_SWITCH:
-        return i2c->SWITCH;
-    default:
-        return 0;
+        case I2C_REGISTER_CTRL1:
+            return i2c->CTRL1;
+        case I2C_REGISTER_CTRL2:
+            return i2c->CTRL2;
+        case I2C_REGISTER_SADDR1:
+            return i2c->SADDR1;
+        case I2C_REGISTER_SADDR2:
+            return i2c->SADDR2;
+        case I2C_REGISTER_DATA:
+            return i2c->DATA;
+        case I2C_REGISTER_STS1:
+            return i2c->STS1;
+        case I2C_REGISTER_STS2:
+            return i2c->STS2;
+        case I2C_REGISTER_CLKCTRL:
+            return i2c->CLKCTRL;
+        case I2C_REGISTER_RISETMAX:
+            return i2c->RISETMAX;
+        case I2C_REGISTER_SWITCH:
+            return i2c->I2C_SWITCH;
+        default:
+            return 0;
     }
 }
 
@@ -425,7 +440,7 @@ void I2C_DisableSoftwareReset(I2C_T* i2c)
  */
 void I2C_ConfigNACKPosition(I2C_T* i2c, I2C_NACK_POSITION_T NACKPosition)
 {
-    if(NACKPosition == I2C_NACK_POSITION_NEXT)
+    if (NACKPosition == I2C_NACK_POSITION_NEXT)
     {
         i2c->CTRL1_B.ACKPOS = BIT_SET;
     }
@@ -448,7 +463,7 @@ void I2C_ConfigNACKPosition(I2C_T* i2c, I2C_NACK_POSITION_T NACKPosition)
  */
 void I2C_ConfigSMBusAlert(I2C_T* i2c, I2C_SMBUSALER_T SMBusState)
 {
-    if(SMBusState == I2C_SMBUSALER_LOW)
+    if (SMBusState == I2C_SMBUSALER_LOW)
     {
         i2c->CTRL1_B.ALERTEN = BIT_SET;
     }
@@ -495,7 +510,7 @@ void I2C_DisablePECTransmit(I2C_T* i2c)
  */
 void I2C_ConfigPECPosition(I2C_T* i2c, I2C_PEC_POSITION_T PECPosition)
 {
-    if(PECPosition == I2C_PEC_POSITION_NEXT)
+    if (PECPosition == I2C_PEC_POSITION_NEXT)
     {
         i2c->CTRL1_B.ACKPOS = BIT_SET;
     }
@@ -602,7 +617,7 @@ void I2C_DisableStretchClock(I2C_T* i2c)
  */
 void I2C_ConfigFastModeDutyCycle(I2C_T* i2c, I2C_DUTYCYCLE_T dutyCycle)
 {
-    if(dutyCycle == I2C_DUTYCYCLE_16_9)
+    if (dutyCycle == I2C_DUTYCYCLE_16_9)
     {
         i2c->CLKCTRL_B.FDUTYCFG = BIT_SET;
     }
@@ -733,7 +748,7 @@ uint8_t  I2C_ReadEventStatus(I2C_T* i2c, I2C_EVENT_T i2cEvent)
 
     lastevent = (flag1 | flag2) & 0x00FFFFFF;
 
-    if((lastevent & i2cEvent) == i2cEvent)
+    if ((lastevent & i2cEvent) == i2cEvent)
     {
         return SUCCESS;
     }
@@ -798,71 +813,71 @@ uint8_t I2C_ReadStatusFlag(I2C_T* i2c, I2C_FLAG_T flag)
     uint8_t status = 0;
     switch (flag)
     {
-    case I2C_FLAG_DUALADDR:
-        status = i2c->STS2_B.DUALADDRFLG;
-        break;
-    case I2C_FLAG_SMMHADDR:
-        status = i2c->STS2_B.SMMHADDR;
-        break;
-    case I2C_FLAG_SMBDADDR:
-        status = i2c->STS2_B.SMBDADDRFLG;
-        break;
-    case I2C_FLAG_GENCALL:
-        status = i2c->STS2_B.GENCALLFLG;
-        break;
-    case I2C_FLAG_TR:
-        status = i2c->STS2_B.TRFLG;
-        break;
-    case I2C_FLAG_BUSBSY:
-        status = i2c->STS2_B.BUSBSYFLG;
-        break;
-    case I2C_FLAG_MS:
-        status = i2c->STS2_B.MSFLG;
-        break;
-    case I2C_FLAG_SMBALT:
-        status = i2c->STS1_B.SMBALTFLG;
-        break;
-    case I2C_FLAG_TTE:
-        status = i2c->STS1_B.TTEFLG;
-        break;
-    case I2C_FLAG_PECE:
-        status = i2c->STS1_B.PECEFLG;
-        break;
-    case  I2C_FLAG_OVRUR:
-        status = i2c->STS1_B.OVRURFLG;
-        break;
-    case I2C_FLAG_AE:
-        status = i2c->STS1_B.AEFLG;
-        break;
-    case I2C_FLAG_AL:
-        status = i2c->STS1_B.ALFLG;
-        break;
-    case I2C_FLAG_BERR:
-        status = i2c->STS1_B.BERRFLG;
-        break;
-    case I2C_FLAG_TXBE:
-        status = i2c->STS1_B.TXBEFLG;
-        break;
-    case I2C_FLAG_RXBNE:
-        status = i2c->STS1_B.RXBNEFLG;
-        break;
-    case I2C_FLAG_STOP:
-        status = i2c->STS1_B.STOPFLG;
-        break;
-    case I2C_FLAG_ADDR10:
-        status = i2c->STS1_B.ADDR10FLG;
-        break;
-    case I2C_FLAG_BTC:
-        status = i2c->STS1_B.BTCFLG;
-        break;
-    case I2C_FLAG_ADDR:
-        status = i2c->STS1_B.ADDRFLG;
-        break;
-    case I2C_FLAG_START:
-        status = i2c->STS1_B.STARTFLG;
-        break;
-    default:
-        break;
+        case I2C_FLAG_DUALADDR:
+            status = i2c->STS2_B.DUALADDRFLG;
+            break;
+        case I2C_FLAG_SMMHADDR:
+            status = i2c->STS2_B.SMMHADDR;
+            break;
+        case I2C_FLAG_SMBDADDR:
+            status = i2c->STS2_B.SMBDADDRFLG;
+            break;
+        case I2C_FLAG_GENCALL:
+            status = i2c->STS2_B.GENCALLFLG;
+            break;
+        case I2C_FLAG_TR:
+            status = i2c->STS2_B.TRFLG;
+            break;
+        case I2C_FLAG_BUSBSY:
+            status = i2c->STS2_B.BUSBSYFLG;
+            break;
+        case I2C_FLAG_MS:
+            status = i2c->STS2_B.MSFLG;
+            break;
+        case I2C_FLAG_SMBALT:
+            status = i2c->STS1_B.SMBALTFLG;
+            break;
+        case I2C_FLAG_TTE:
+            status = i2c->STS1_B.TTEFLG;
+            break;
+        case I2C_FLAG_PECE:
+            status = i2c->STS1_B.PECEFLG;
+            break;
+        case  I2C_FLAG_OVRUR:
+            status = i2c->STS1_B.OVRURFLG;
+            break;
+        case I2C_FLAG_AE:
+            status = i2c->STS1_B.AEFLG;
+            break;
+        case I2C_FLAG_AL:
+            status = i2c->STS1_B.ALFLG;
+            break;
+        case I2C_FLAG_BERR:
+            status = i2c->STS1_B.BERRFLG;
+            break;
+        case I2C_FLAG_TXBE:
+            status = i2c->STS1_B.TXBEFLG;
+            break;
+        case I2C_FLAG_RXBNE:
+            status = i2c->STS1_B.RXBNEFLG;
+            break;
+        case I2C_FLAG_STOP:
+            status = i2c->STS1_B.STOPFLG;
+            break;
+        case I2C_FLAG_ADDR10:
+            status = i2c->STS1_B.ADDR10FLG;
+            break;
+        case I2C_FLAG_BTC:
+            status = i2c->STS1_B.BTCFLG;
+            break;
+        case I2C_FLAG_ADDR:
+            status = i2c->STS1_B.ADDRFLG;
+            break;
+        case I2C_FLAG_START:
+            status = i2c->STS1_B.STARTFLG;
+            break;
+        default:
+            break;
     }
     return status;
 }
@@ -904,29 +919,29 @@ void I2C_ClearStatusFlag(I2C_T* i2c, I2C_FLAG_T flag)
 {
     switch (flag)
     {
-    case I2C_FLAG_SMBALT:
-        i2c->STS1_B.SMBALTFLG = BIT_RESET;
-        break;
-    case I2C_FLAG_TTE:
-        i2c->STS1_B.TTEFLG = BIT_RESET;
-        break;
-    case I2C_FLAG_PECE:
-        i2c->STS1_B.PECEFLG = BIT_RESET;
-        break;
-    case  I2C_FLAG_OVRUR:
-        i2c->STS1_B.OVRURFLG = BIT_RESET;
-        break;
-    case I2C_FLAG_AE:
-        i2c->STS1_B.AEFLG = BIT_RESET;
-        break;
-    case I2C_FLAG_AL:
-        i2c->STS1_B.ALFLG = BIT_RESET;
-        break;
-    case I2C_FLAG_BERR:
-        i2c->STS1_B.BERRFLG = BIT_RESET;
-        break;
-    default:
-        break;
+        case I2C_FLAG_SMBALT:
+            i2c->STS1_B.SMBALTFLG = BIT_RESET;
+            break;
+        case I2C_FLAG_TTE:
+            i2c->STS1_B.TTEFLG = BIT_RESET;
+            break;
+        case I2C_FLAG_PECE:
+            i2c->STS1_B.PECEFLG = BIT_RESET;
+            break;
+        case  I2C_FLAG_OVRUR:
+            i2c->STS1_B.OVRURFLG = BIT_RESET;
+            break;
+        case I2C_FLAG_AE:
+            i2c->STS1_B.AEFLG = BIT_RESET;
+            break;
+        case I2C_FLAG_AL:
+            i2c->STS1_B.ALFLG = BIT_RESET;
+            break;
+        case I2C_FLAG_BERR:
+            i2c->STS1_B.BERRFLG = BIT_RESET;
+            break;
+        default:
+            break;
     }
 }
 
@@ -960,7 +975,7 @@ uint8_t I2C_ReadIntFlag(I2C_T* i2c, I2C_INT_FLAG_T flag)
 
     enablestatus = ((flag & 0x07000000) >> 16) & (i2c->CTRL2);
     flag &= 0x00FFFFFF;
-    if(((i2c->STS1 & flag) != RESET) && enablestatus)
+    if (((i2c->STS1 & flag) != RESET) && enablestatus)
     {
         return SET;
     }
@@ -973,7 +988,7 @@ uint8_t I2C_ReadIntFlag(I2C_T* i2c, I2C_INT_FLAG_T flag)
  * @param     i2c: I2C selet 1 or 2
  *
  * @param     flag: specifies the I2C flag
- *              The parameter can be one of the following values:
+ *              The parameter can be any combination of the following values:
  *              @arg I2C_INT_FLAG_SMBALT:   SMBus Alert flag
  *              @arg I2C_INT_FLAG_TTE:      Timeout or Tlow error flag
  *              @arg I2C_INT_FLAG_PECE:     PEC error in reception flag
@@ -1000,14 +1015,11 @@ uint8_t I2C_ReadIntFlag(I2C_T* i2c, I2C_INT_FLAG_T flag)
  *              a read operation to I2C_STS1 register (I2C_ReadIntFlag())
  *              followed by a write operation to I2C_DATA register (I2C_TxData()).
  */
-void I2C_ClearIntFlag(I2C_T* i2c, I2C_INT_FLAG_T flag)
+void I2C_ClearIntFlag(I2C_T* i2c, uint32_t flag)
 {
-    uint32_t flagpos = 0;
-
-    flagpos = flag & 0x00FFFFFF;
-    i2c->STS1 = ~flagpos;
+    i2c->STS1 = (uint16_t)~(flag & 0x00FFFFFF);
 }
 
-/**@} end of group I2C_Fuctions*/
+/**@} end of group I2C_Functions*/
 /**@} end of group I2C_Driver*/
-/**@} end of group Peripherals_Library*/
+/**@} end of group APM32F10x_StdPeriphDriver*/

@@ -20,6 +20,33 @@ Path:
 
 - bsp/acm32f0x0-nucleo/libraries
 
+### apm32
+
+bsp 列表：
+- apm32f103xe-minibroard
+
+------
+
+License: GEEHY SOFTWARE PACKAGE LICENSE
+
+Copyright: Copyright (C) 2020-2022 Geehy Semiconductor
+
+Path:
+
+- bsp\apm32\libraries\APM32F10x_Library\APM32F10x_StdPeriphDriver
+- bsp\apm32\libraries\APM32F10x_Library\Device
+- bsp\apm32\libraries\APM32F10x_Library\USB_Device_Lib
+
+------
+
+License: bsd-new
+
+Copyright (c) 2009-2018 Arm Limited
+
+Path:
+
+- bsp\apm32\libraries\APM32F10x_Library\CMSIS\Include
+
 ### apollo2
 
 License:  bsd-new
@@ -92,8 +119,8 @@ Path:
 - bsp/efm32/EFM32_Gxxx_DK
 - bsp/efm32/EFM32GG_DK3750
 - bsp/efm32/graphics
-- bsp/efm32/Libraries/Device/EnergyMicro
-- bsp/efm32/Libraries/emlib
+- bsp/efm32/libraries/Device/EnergyMicro
+- bsp/efm32/libraries/emlib
 
 ------
 
@@ -103,7 +130,7 @@ Copyright: Copyright (c) 2009-2012 ARM Limited
 
 Path:
 
-- bsp/efm32/Libraries/CMSIS/Include
+- bsp/efm32/libraries/CMSIS/Include
 
 ### essemi
 
@@ -245,8 +272,8 @@ Copyright: Copyright (c) 2020, Huada Semiconductor Co., Ltd.
 
 Path:
 
-- bsp/hc32l196/Libraries/CMSIS
-- bsp/hc32l196/Libraries/HC32L196_StdPeriph_Driver
+- bsp/hc32l196/libraries/CMSIS
+- bsp/hc32l196/libraries/HC32L196_StdPeriph_Driver
 
 ### hk32
 
@@ -298,6 +325,17 @@ Path:
 
 - bsp/imx6ul/platform
 
+### imx91
+
+License: bsd-new
+
+Copyright: Copyright 2014-2016 Freescale Semiconductor, Inc.
+           Copyright 2016-2025 NXP
+
+Path:
+
+- bsp/nxp/imx/imx91/drivers/sdk
+
 ### imxrt
 
 License: clear-bsd
@@ -339,9 +377,9 @@ Copyright: Copyright (c) 2005-2011 Texas Instruments Incorporated
 
 Path:
 
-- bsp/lm3s8962/Libraries
-- bsp/lm3s9b9x/Libraries
-- bsp/lm4f232/Libraries
+- bsp/lm3s8962/libraries
+- bsp/lm3s9b9x/libraries
+- bsp/lm4f232/libraries
 
 ###  lpcxxx
 
@@ -512,8 +550,8 @@ Copyright: Copyright (c) 2009 - 2013 ARM LIMITED
 
 Path:
 
-- bsp/mm32l07x/Libraries/CMSIS
-- bsp/mm32l3xx/Libraries/CMSIS/IAR_CORE
+- bsp/mm32/mm32l07x/Libraries/CMSIS
+- bsp/mm32/mm32l3xx/Libraries/CMSIS/IAR_CORE
 
 ------
 
@@ -523,8 +561,8 @@ Copyright: (c) COPYRIGHT 2017 MindMotion
 
 Path:
 
-- bsp/mm32l07x/Libraries/MM32L0xx
-- bsp/mm32l3xx/Libraries/MM32L3xx
+- bsp/mm32/mm32l07x/Libraries/MM32L0xx
+- bsp/mm32/mm32l3xx/Libraries/MM32L3xx
 
 ### nrf
 
@@ -705,7 +743,6 @@ Path:
 bsp 列表：
 
 - swm320
-- swm320-lq100
 
 ------
 
@@ -716,7 +753,6 @@ Copyright: COPYRIGHT 2012 Synwit Technology
 Path:
 
 - bsp/swm320/libraries/CMSIS/DeviceSupport
-- bsp/swm320-lq100/Libraries/SWM320_StdPeriph_Driver
 
 ------
 
@@ -727,7 +763,6 @@ Copyright:  Copyright (c) 2009 - 2014 ARM LIMITED
 Path:
 
 - bsp/swm320/libraries/CMSIS
-- bsp/swm320-lq100/Libraries/CMSIS/CoreSupport
 
 ### tae32f5300
 
@@ -737,7 +772,7 @@ Copyright (c) 2020 Tai-Action.
 
 Path:
 
-- bsp/tae32f5300/Libraries/TAE32F53xx_StdPeriph_Driver
+- bsp/tae32f5300/libraries/TAE32F53xx_StdPeriph_Driver
 
 ### tm4c
 
@@ -768,7 +803,7 @@ Copyright: Copyright (c) 2009 - 2013 ARM LIMITED
 
 Path:
 
-- bsp/xplorer4330/Libraries/CMSIS/Include
+- bsp/xplorer4330/libraries/CMSIS/Include
 
 ------
 
@@ -778,7 +813,7 @@ Copyright: Copyright (c) 2011, NXP Semiconductor
 
 Path:
 
-- bsp/xplorer4330/Libraries/Device/NXP/LPC43xx
+- bsp/xplorer4330/libraries/Device/NXP/LPC43xx
 
 ### zynqmp-r5-axu4ev
 
@@ -806,4 +841,4 @@ Copyright: Copyright (c) 2010-2015 ARM Limited
 
 Path:
 
-- bsp/n32g452xx/Libraries/N32_Std_Driver/CMSIS
+- bsp/n32g452xx/libraries/N32_Std_Driver/CMSIS

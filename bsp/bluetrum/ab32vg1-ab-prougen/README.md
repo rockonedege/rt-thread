@@ -16,7 +16,7 @@
 
 波特率默认为 1.5M，需要使用 [Downloader](https://github.com/BLUETRUM/Downloader) 下载 `.dcf` 到芯片，需要编译后自动下载，需要在 `Downloader` 中的下载的下拉窗中选择 `自动`；目前暂时屏蔽 uart1 打印
 
-使用 `romfs` 时，需要自己生成 `romfs.c` 进行替换，操作参考[使用 RomFS](https://www.rt-thread.org/document/site/tutorial/qemu-network/filesystems/filesystems/#romfs)
+使用 `romfs` 时，需要自己生成 `romfs.c` 进行替换，操作参考[使用 RomFS](https://www.rt-thread.org/document/site/#/rt-thread-version/rt-thread-standard/tutorial/qemu-network/filesystems/filesystems?id=%e4%bd%bf%e7%94%a8-romfs)
 
 编译报错的时候，如果出现重复定义的报错，可能需要在 `cconfig.h` 中手动添加以下配置
 
@@ -29,10 +29,10 @@
 所有在中断中使用的函数或数据需要放在 RAM 中，否则会导致系统运行报错。具体做法可以参考下面
 
 ``` c
-RT_SECTION(".irq.example.str")
+rt_section(".irq.example.str")
 static const char example_info[] = "example 0x%x";
 
-RT_SECTION(".irq.example")
+rt_section(".irq.example")
 void example_isr(void)
 {
     rt_kprintf(example_info, 11);
@@ -70,12 +70,12 @@ ab32vg1-prougen 是 中科蓝讯(Bluetrum) 推出的一款基于 RISC-V 内核�
 | GPIO         |     支持     | PA PB PE PF                               |
 | UART         |     支持     | UART0/1/2                                 |
 | SDIO         |     支持     |                                           |
-| ADC          |     支持     | 10bit ADC                                 |
-| SPI          |   即将支持   | 软件 SPI                                  |
+| ADC          |     支持     | 10bit SRADC  16bit SDADC                  |
+| SPI          |   即将支持   |                                           |
 | I2C          |     支持     | 软件 I2C                                  |
 | RTC          |     支持     |                                           |
 | WDT          |     支持     |                                           |
-| FLASH        |   即将支持   | 对接 FAL                                  |
+| FLASH        |     支持     | 对接 FAL                                  |
 | TIMER        |     支持     |                                           |
 | PWM          |     支持     | LPWM 的 G1 G2 G3 之间是互斥的，只能三选一 |
 | FM receive   |     支持     |                                           |

@@ -1,25 +1,40 @@
 /*!
- * @file       apm32f10x_dma.c
+ * @file        apm32f10x_dma.c
  *
- * @brief      This file provides all the DMA firmware functions
+ * @brief       This file provides all the DMA firmware functions
  *
- * @version    V1.0.1
+ * @version     V1.0.4
  *
- * @date       2021-03-23
+ * @date        2022-12-01
  *
+ * @attention
+ *
+ *  Copyright (C) 2020-2022 Geehy Semiconductor
+ *
+ *  You may not use this file except in compliance with the
+ *  GEEHY COPYRIGHT NOTICE (GEEHY SOFTWARE PACKAGE LICENSE).
+ *
+ *  The program is only for reference, which is distributed in the hope
+ *  that it will be useful and instructional for customers to develop
+ *  their software. Unless required by applicable law or agreed to in
+ *  writing, the program is distributed on an "AS IS" BASIS, WITHOUT
+ *  ANY WARRANTY OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the GEEHY SOFTWARE PACKAGE LICENSE for the governing permissions
+ *  and limitations under the License.
  */
 
 #include "apm32f10x_dma.h"
 
-/** @addtogroup Peripherals_Library Standard Peripheral Library
+/** @addtogroup APM32F10x_StdPeriphDriver
   @{
 */
 
 /** @addtogroup DMA_Driver DMA Driver
+  * @brief DMA driver modules
   @{
 */
 
-/** @addtogroup DMA_Fuctions Fuctions
+/** @defgroup DMA_Functions Functions
   @{
 */
 
@@ -32,7 +47,7 @@
  *
  * @note      DMA2 Channel only for APM32 High density devices.
  */
-void DMA_Reset(DMA_Channel_T *channel)
+void DMA_Reset(DMA_Channel_T* channel)
 {
     channel->CHCFG_B.CHEN = BIT_RESET;
     channel->CHCFG = 0;
@@ -40,51 +55,51 @@ void DMA_Reset(DMA_Channel_T *channel)
     channel->CHMADDR = 0;
     channel->CHPADDR = 0;
 
-    if(channel == DMA1_Channel1)
+    if (channel == DMA1_Channel1)
     {
         DMA1->INTFCLR |= 0xFFFFFFF0;
     }
-    else if(channel == DMA1_Channel2)
+    else if (channel == DMA1_Channel2)
     {
         DMA1->INTFCLR |= 0xFFFFFF0F;
     }
-    else if(channel == DMA1_Channel3)
+    else if (channel == DMA1_Channel3)
     {
         DMA1->INTFCLR |= 0xFFFFF0FF;
     }
-    else if(channel == DMA1_Channel4)
+    else if (channel == DMA1_Channel4)
     {
         DMA1->INTFCLR |= 0xFFFF0FFF;
     }
-    else if(channel == DMA1_Channel5)
+    else if (channel == DMA1_Channel5)
     {
         DMA1->INTFCLR |= 0xFFF0FFFF;
     }
-    else if(channel == DMA1_Channel6)
+    else if (channel == DMA1_Channel6)
     {
         DMA1->INTFCLR |= 0xFF0FFFFF;
     }
-    else if(channel == DMA1_Channel7)
+    else if (channel == DMA1_Channel7)
     {
         DMA1->INTFCLR |= 0xF0FFFFFF;
     }
-    else if(channel == DMA2_Channel1)
+    else if (channel == DMA2_Channel1)
     {
         DMA2->INTFCLR |= 0xFFFFFFF0;
     }
-    else if(channel == DMA2_Channel2)
+    else if (channel == DMA2_Channel2)
     {
         DMA2->INTFCLR |= 0xFFFFFF0F;
     }
-    else if(channel == DMA2_Channel3)
+    else if (channel == DMA2_Channel3)
     {
         DMA2->INTFCLR |= 0xFFFFF0FF;
     }
-    else if(channel == DMA2_Channel4)
+    else if (channel == DMA2_Channel4)
     {
         DMA2->INTFCLR |= 0xFFFF0FFF;
     }
-    else if(channel == DMA2_Channel5)
+    else if (channel == DMA2_Channel5)
     {
         DMA2->INTFCLR |= 0xFFF0FFFF;
     }
@@ -124,7 +139,7 @@ void DMA_Config(DMA_Channel_T* channel, DMA_Config_T* dmaConfig)
  *
  * @retval    None
  */
-void DMA_ConfigStructInit( DMA_Config_T* dmaConfig)
+void DMA_ConfigStructInit(DMA_Config_T* dmaConfig)
 {
     dmaConfig->peripheralBaseAddr = 0;
     dmaConfig->memoryBaseAddr = 0;
@@ -148,7 +163,7 @@ void DMA_ConfigStructInit( DMA_Config_T* dmaConfig)
  *
  * @note      DMA2 Channel only for APM32 High density devices.
  */
-void DMA_Enable(DMA_Channel_T *channel)
+void DMA_Enable(DMA_Channel_T* channel)
 {
     channel->CHCFG_B.CHEN = ENABLE;
 }
@@ -162,7 +177,7 @@ void DMA_Enable(DMA_Channel_T *channel)
  *
  * @note      DMA2 Channel only for APM32 High density devices.
  */
-void DMA_Disable(DMA_Channel_T *channel)
+void DMA_Disable(DMA_Channel_T* channel)
 {
     channel->CHCFG_B.CHEN = DISABLE;
 }
@@ -178,7 +193,7 @@ void DMA_Disable(DMA_Channel_T *channel)
  *
  * @note      DMA2 Channel only for APM32 High density devices.
  */
-void DMA_ConfigDataNumber(DMA_Channel_T *channel, uint16_t dataNumber)
+void DMA_ConfigDataNumber(DMA_Channel_T* channel, uint16_t dataNumber)
 {
     channel->CHNDATA = dataNumber;
 }
@@ -192,7 +207,7 @@ void DMA_ConfigDataNumber(DMA_Channel_T *channel, uint16_t dataNumber)
  *
  * @note      DMA2 Channel only for APM32 High density devices.
  */
-uint16_t DMA_ReadDataNumber(DMA_Channel_T *channel)
+uint16_t DMA_ReadDataNumber(DMA_Channel_T* channel)
 {
     return channel->CHNDATA;
 }
@@ -212,7 +227,7 @@ uint16_t DMA_ReadDataNumber(DMA_Channel_T *channel)
  *
  * @note      DMA2 Channel only for APM32 High density devices.
  */
-void DMA_EnableInterrupt(DMA_Channel_T *channel, uint32_t interrupt)
+void DMA_EnableInterrupt(DMA_Channel_T* channel, uint32_t interrupt)
 {
     channel->CHCFG |= interrupt;
 }
@@ -232,7 +247,7 @@ void DMA_EnableInterrupt(DMA_Channel_T *channel, uint32_t interrupt)
  *
  * @note      DMA2 Channel only for APM32 High density devices.
  */
-void DMA_DisableInterrupt(DMA_Channel_T *channel, uint32_t interrupt)
+void DMA_DisableInterrupt(DMA_Channel_T* channel, uint32_t interrupt)
 {
     channel->CHCFG &= ~interrupt;
 }
@@ -298,22 +313,24 @@ void DMA_DisableInterrupt(DMA_Channel_T *channel, uint32_t interrupt)
  */
 uint8_t DMA_ReadStatusFlag(DMA_FLAG_T flag)
 {
-    if((flag & 0x10000000) != RESET )
+    if ((flag & 0x10000000) != RESET)
     {
-        if((DMA2->INTSTS & flag ) != RESET )
+        if ((DMA2->INTSTS & flag) != RESET)
         {
             return SET ;
-        } else
+        }
+        else
         {
             return RESET ;
         }
     }
     else
     {
-        if((DMA1->INTSTS & flag ) != RESET )
+        if ((DMA1->INTSTS & flag) != RESET)
         {
             return SET ;
-        } else
+        }
+        else
         {
             return RESET ;
         }
@@ -381,10 +398,11 @@ uint8_t DMA_ReadStatusFlag(DMA_FLAG_T flag)
  */
 void DMA_ClearStatusFlag(uint32_t flag)
 {
-    if((flag & 0x10000000) != RESET)
+    if ((flag & 0x10000000) != RESET)
     {
         DMA2->INTFCLR = flag;
-    } else
+    }
+    else
     {
         DMA1->INTFCLR = flag;
     }
@@ -451,26 +469,30 @@ void DMA_ClearStatusFlag(uint32_t flag)
  */
 uint8_t DMA_ReadIntFlag(DMA_INT_FLAG_T flag)
 {
-    if((flag & 0x10000000) != RESET )
+    if ((flag & 0x10000000) != RESET)
     {
-        if((DMA2->INTSTS & flag ) != RESET )
+        if ((DMA2->INTSTS & flag) != RESET)
         {
             return SET ;
-        } else
+        }
+        else
         {
             return RESET ;
         }
-    } else
+    }
+    else
     {
-        if((DMA1->INTSTS & flag ) != RESET )
+        if ((DMA1->INTSTS & flag) != RESET)
         {
             return SET ;
-        } else
+        }
+        else
         {
             return RESET ;
         }
     }
 }
+
 /*!
  * @brief     Clears the specified DMA Channel's interrupts.
  *
@@ -532,15 +554,16 @@ uint8_t DMA_ReadIntFlag(DMA_INT_FLAG_T flag)
  */
 void DMA_ClearIntFlag(uint32_t flag)
 {
-    if((flag & 0x10000000) != RESET)
+    if ((flag & 0x10000000) != RESET)
     {
         DMA2->INTFCLR = flag;
-    } else
+    }
+    else
     {
         DMA1->INTFCLR = flag;
     }
 }
 
-/**@} end of group DMA_Fuctions*/
+/**@} end of group DMA_Functions*/
 /**@} end of group DMA_Driver*/
-/**@} end of group Peripherals_Library*/
+/**@} end of group APM32F10x_StdPeriphDriver */

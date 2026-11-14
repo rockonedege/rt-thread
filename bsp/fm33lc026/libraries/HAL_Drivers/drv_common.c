@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2018, RT-Thread Development Team
+ * Copyright (c) 2006-2022, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -90,7 +90,7 @@ void rt_hw_us_delay(rt_uint32_t us)
 /**
  * This function will initial STM32 board.
  */
-RT_WEAK void rt_hw_board_init()
+rt_weak void rt_hw_board_init()
 {
     void SelRCHFToPLL(uint32_t rchf, uint32_t clock);
 
@@ -111,7 +111,7 @@ RT_WEAK void rt_hw_board_init()
 #endif
 
     /* Set the shell console output device */
-#ifdef RT_USING_CONSOLE
+#if defined(RT_USING_CONSOLE) && defined(RT_USING_DEVICE)
     rt_console_set_device(RT_CONSOLE_DEVICE_NAME);
 #endif
 

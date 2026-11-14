@@ -1,31 +1,47 @@
 /*!
- * @file       apm32f10x_tmr.h
+ * @file        apm32f10x_tmr.h
  *
- * @brief      This file contains all the functions prototypes for the TMR firmware library.
+ * @brief       This file contains all the functions prototypes for the TMR firmware library.
  *
- * @version    V1.0.1
+ * @version     V1.0.4
  *
- * @date       2021-03-23
+ * @date        2022-12-01
  *
+ * @attention
+ *
+ *  Copyright (C) 2020-2022 Geehy Semiconductor
+ *
+ *  You may not use this file except in compliance with the
+ *  GEEHY COPYRIGHT NOTICE (GEEHY SOFTWARE PACKAGE LICENSE).
+ *
+ *  The program is only for reference, which is distributed in the hope
+ *  that it will be useful and instructional for customers to develop
+ *  their software. Unless required by applicable law or agreed to in
+ *  writing, the program is distributed on an "AS IS" BASIS, WITHOUT
+ *  ANY WARRANTY OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the GEEHY SOFTWARE PACKAGE LICENSE for the governing permissions
+ *  and limitations under the License.
  */
+/* Define to prevent recursive inclusion */
 #ifndef __APM32F10X_TMR_H
 #define __APM32F10X_TMR_H
 
+/* Includes */
 #include "apm32f10x.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/** @addtogroup Peripherals_Library Standard Peripheral Library
+/** @addtogroup APM32F10x_StdPeriphDriver
   @{
 */
 
-/** @addtogroup TMR_Driver  TMR Driver
+/** @addtogroup TMR_Driver TMR Driver
   @{
 */
 
-/** @addtogroup TMR_Enumerations Enumerations
+/** @defgroup TMR_Enumerations Enumerations
   @{
 */
 
@@ -63,7 +79,7 @@ typedef enum
     TMR_OC_MODE_LOWLEVEL   = 0x04,
     TMR_OC_MODE_HIGHLEVEL  = 0x05,
     TMR_OC_MODE_PWM1       = 0x06,
-    TMR_OC_MODE_PWM2       = 0x07,
+    TMR_OC_MODE_PWM2       = 0x07
 } TMR_OC_MODE_T;
 
 /**
@@ -353,9 +369,9 @@ typedef enum
  */
 typedef enum
 {
-    TMR_PRESCALER_RELOAD_UPDATA,
-    TMR_PRESCALER_RELOAD_IMMEDIATE
-} TMR_PRESCALER_RELOAD_T;
+    TMR_PSC_RELOAD_UPDATE,
+    TMR_PSC_RELOAD_IMMEDIATE
+} TMR_PSC_RELOAD_T;
 
 /**
  * @brief    TMR Encoder Mode
@@ -444,7 +460,7 @@ typedef enum
     TMR_SLAVE_MODE_RESET     = 0x04,
     TMR_SLAVE_MODE_GATED     = 0x05,
     TMR_SLAVE_MODE_TRIGGER   = 0x06,
-    TMR_SLAVE_MODE_EXTERNALL = 0x07
+    TMR_SLAVE_MODE_EXTERNAL1 = 0x07
 } TMR_SLAVE_MODE_T;
 
 /**
@@ -466,26 +482,26 @@ typedef enum
     TMR_FLAG_CC4RC   = 0x1000
 } TMR_FLAG_T;
 
-/**@} end of group TMR_Enumerations*/
+/**@} end of group TMR_Enumerations */
 
-/** @addtogroup TMR_Structure Data Structure
+/** @defgroup TMR_Structures Structures
   @{
 */
 
 /**
- * @brief    TMR Config struct definition
+ * @brief    TMR Base Configure structure definition
  */
 typedef struct
 {
     TMR_COUNTER_MODE_T     countMode;
     TMR_CLOCK_DIV_T        clockDivision;
-    uint16_t               period;            //!< This must between 0x0000 and 0xFFFF
-    uint16_t               division;          //!< This must between 0x0000 and 0xFFFF
-    uint8_t                repetitionCounter; //!< This must between 0x00 and 0xFF, only for TMR1 and TMR8.
+    uint16_t               period;            /*!< This must between 0x0000 and 0xFFFF */
+    uint16_t               division;          /*!< This must between 0x0000 and 0xFFFF */
+    uint8_t                repetitionCounter; /*!< This must between 0x00 and 0xFF, only for TMR1 and TMR8. */
 } TMR_BaseConfig_T; ;
 
 /**
- * @brief    TMR Config struct definition
+ * @brief    TMR Output Compare Configure structure definition
  */
 typedef struct
 {
@@ -496,7 +512,7 @@ typedef struct
     TMR_OC_NPOLARITY_T     nPolarity;
     TMR_OC_IDLE_STATE_T    idleState;
     TMR_OC_NIDLE_STATE_T   nIdleState;
-    uint16_t               pulse;     //!< This must between 0x0000 and 0xFFFF
+    uint16_t               pulse;     /*!< This must between 0x0000 and 0xFFFF */
 } TMR_OCConfig_T;
 
 /**
@@ -514,7 +530,7 @@ typedef struct
 } TMR_BDTConfig_T;
 
 /**
- * @brief    TMR Input Capture Config struct definition
+ * @brief    TMR Input Capture Configure structure definition
  */
 typedef struct
 {
@@ -522,63 +538,65 @@ typedef struct
     TMR_IC_POLARITY_T      polarity;
     TMR_IC_SELECTION_T     selection;
     TMR_IC_PSC_T           prescaler;
-    uint16_t               filter;    //!< This must between 0x00 and 0x0F
+    uint16_t               filter;    /*!< This must between 0x00 and 0x0F */
 } TMR_ICConfig_T;
 
-/**@} end of group TMR_Structure*/
+/**@} end of group TMR_Structures */
 
-/** @addtogroup  TMR_Fuctions Fuctions
+/** @defgroup  TMR_Functions Functions
   @{
 */
 
-/** Reset and Configuration */
+/* Reset and Configuration */
 void TMR_Reset(TMR_T* tmr);
-void TMR_ConfigTimeBase(TMR_T* tmr, TMR_BaseConfig_T *baseConfig);
-void TMR_ConfigOC1(TMR_T* tmr, TMR_OCConfig_T *OC1Config);
-void TMR_ConfigOC2(TMR_T* tmr, TMR_OCConfig_T *OC2Config);
-void TMR_ConfigOC3(TMR_T* tmr, TMR_OCConfig_T *OC3Config);
-void TMR_ConfigOC4(TMR_T* tmr, TMR_OCConfig_T *OC4Config);
-void TMR_ConfigIC(TMR_T* tmr, TMR_ICConfig_T *ICConfig);
-void TMR_ConfigBDT(TMR_T* tmr, TMR_BDTConfig_T *BDTConfig);
-void TMR_ConfigTimeBaseStructInit(TMR_BaseConfig_T *baseConfig);
-void TMR_ConfigOCStructInit(TMR_OCConfig_T *OCConfig);
-void TMR_ConfigICStructInit(TMR_ICConfig_T *ICConfig);
-void TMR_ConfigBDTStructInit( TMR_BDTConfig_T *BDTConfig);
+void TMR_ConfigTimeBase(TMR_T* tmr, TMR_BaseConfig_T* baseConfig);
+void TMR_ConfigOC1(TMR_T* tmr, TMR_OCConfig_T* OCConfig);
+void TMR_ConfigOC2(TMR_T* tmr, TMR_OCConfig_T* OCConfig);
+void TMR_ConfigOC3(TMR_T* tmr, TMR_OCConfig_T* OCConfig);
+void TMR_ConfigOC4(TMR_T* tmr, TMR_OCConfig_T* OCConfig);
+void TMR_ConfigIC(TMR_T* tmr, TMR_ICConfig_T* ICConfig);
+void TMR_ConfigBDT(TMR_T* tmr, TMR_BDTConfig_T* BDTConfig);
+void TMR_ConfigTimeBaseStructInit(TMR_BaseConfig_T* baseConfig);
+void TMR_ConfigOCStructInit(TMR_OCConfig_T* OCConfig);
+void TMR_ConfigICStructInit(TMR_ICConfig_T* ICConfig);
+void TMR_ConfigBDTStructInit(TMR_BDTConfig_T* BDTConfig);
+void TMR_ConfigSinglePulseMode(TMR_T* tmr, TMR_SPM_T singlePulseMode);
+void TMR_ConfigClockDivision(TMR_T* tmr, TMR_CLOCK_DIV_T clockDivision);
 void TMR_Enable(TMR_T* tmr);
 void TMR_Disable(TMR_T* tmr);
 
 /* PWM Configuration */
-void TMR_ConfigPWM(TMR_T* tmr, TMR_ICConfig_T *PWMConfig);
+void TMR_ConfigPWM(TMR_T* tmr, TMR_ICConfig_T* PWMConfig);
 void TMR_EnablePWMOutputs(TMR_T* tmr);
 void TMR_DisablePWMOutputs(TMR_T* tmr);
 
-/** DMA */
+/* DMA */
 void TMR_ConfigDMA(TMR_T* tmr, TMR_DMA_BASE_T baseAddress, TMR_DMA_BURSTLENGTH_T burstLength);
 void TMR_EnableDMASoure(TMR_T* tmr, uint16_t dmaSource);
 void TMR_DisableDMASoure(TMR_T* tmr, uint16_t dmaSource);
 
-/** Configuration */
+/* Configuration */
 void TMR_ConfigInternalClock(TMR_T* tmr);
 void TMR_ConfigIntTrigExternalClock(TMR_T* tmr, TMR_TRIGGER_SOURCE_T triggerSource);
 void TMR_ConfigTrigExternalClock(TMR_T* tmr, TMR_TRIGGER_SOURCE_T triggerSource,
-                                TMR_IC_POLARITY_T ICpolarity, uint16_t ICfilter);
+                                 TMR_IC_POLARITY_T ICpolarity, uint16_t ICfilter);
 void TMR_ConfigETRClockMode1(TMR_T* tmr, TMR_EXTTRG_PSC_T prescaler,
                              TMR_EXTTRG_POL_T polarity, uint16_t filter);
 void TMR_ConfigETRClockMode2(TMR_T* tmr, TMR_EXTTRG_PSC_T prescaler,
                              TMR_EXTTRG_POL_T polarity, uint16_t filter);
 void TMR_ConfigETR(TMR_T* tmr, TMR_EXTTRG_PSC_T prescaler,
                    TMR_EXTTRG_POL_T polarity, uint16_t filter);
-void TMR_ConfigPrescaler(TMR_T* tmr, uint16_t prescaler, TMR_PRESCALER_RELOAD_T pscReloadMode);
+void TMR_ConfigPrescaler(TMR_T* tmr, uint16_t prescaler, TMR_PSC_RELOAD_T pscReloadMode);
 void TMR_ConfigCounterMode(TMR_T* tmr, TMR_COUNTER_MODE_T countMode);
 void TMR_SelectInputTrigger(TMR_T* tmr, TMR_TRIGGER_SOURCE_T triggerSouce);
 void TMR_ConfigEncodeInterface(TMR_T* tmr, TMR_ENCODER_MODE_T encodeMode, TMR_IC_POLARITY_T IC1Polarity,
                                TMR_IC_POLARITY_T IC2Polarity);
-void TMR_ConfigForcedOC1(TMR_T* tmr,TMR_FORCED_ACTION_T forcesAction);
-void TMR_ConfigForcedOC2(TMR_T* tmr,TMR_FORCED_ACTION_T forcesAction);
-void TMR_ConfigForcedOC3(TMR_T* tmr,TMR_FORCED_ACTION_T forcesAction);
-void TMR_ConfigForcedOC4(TMR_T* tmr,TMR_FORCED_ACTION_T forcesAction);
-void TMR_EnableAUTOReload(TMR_T* tmr);
-void TMR_DisableAUTOReload(TMR_T* tmr);
+void TMR_ConfigForcedOC1(TMR_T* tmr, TMR_FORCED_ACTION_T forcesAction);
+void TMR_ConfigForcedOC2(TMR_T* tmr, TMR_FORCED_ACTION_T forcesAction);
+void TMR_ConfigForcedOC3(TMR_T* tmr, TMR_FORCED_ACTION_T forcesAction);
+void TMR_ConfigForcedOC4(TMR_T* tmr, TMR_FORCED_ACTION_T forcesAction);
+void TMR_EnableAutoReload(TMR_T* tmr);
+void TMR_DisableAutoReload(TMR_T* tmr);
 void TMR_EnableSelectCOM(TMR_T* tmr);
 void TMR_DisableSelectCOM(TMR_T* tmr);
 void TMR_EnableCCDMA(TMR_T* tmr);
@@ -604,17 +622,17 @@ void TMR_ConfigOC2NPolarity(TMR_T* tmr, TMR_OC_NPOLARITY_T OCNPolarity);
 void TMR_ConfigOC3Polarity(TMR_T* tmr, TMR_OC_POLARITY_T OCPolarity);
 void TMR_ConfigOC3NPolarity(TMR_T* tmr, TMR_OC_NPOLARITY_T OCNPolarity);
 void TMR_ConfigOC4Polarity(TMR_T* tmr, TMR_OC_POLARITY_T OCPolarity);
-void TMR_EnableCCxChannel(TMR_T* tmr,TMR_CHANNEL_T channel);
-void TMR_DisableCCxChannel(TMR_T* tmr,TMR_CHANNEL_T channel);
-void TMR_EnableCCxNChannel(TMR_T* tmr,TMR_CHANNEL_T channel);
-void TMR_DisableCCxNChannel(TMR_T* tmr,TMR_CHANNEL_T channel);
+void TMR_EnableCCxChannel(TMR_T* tmr, TMR_CHANNEL_T channel);
+void TMR_DisableCCxChannel(TMR_T* tmr, TMR_CHANNEL_T channel);
+void TMR_EnableCCxNChannel(TMR_T* tmr, TMR_CHANNEL_T channel);
+void TMR_DisableCCxNChannel(TMR_T* tmr, TMR_CHANNEL_T channel);
 void TMR_SelectOCxMode(TMR_T* tmr, TMR_CHANNEL_T channel, TMR_OC_MODE_T OCMode);
-void TMR_EnableNoUpdate(TMR_T* tmr);
-void TMR_DisableNoUpdate(TMR_T* tmr);
-void TMR_ConfigUPdateRequest(TMR_T* tmr, TMR_UPDATE_SOURCE_T updateSource);
+void TMR_EnableUpdate(TMR_T* tmr);
+void TMR_DisableUpdate(TMR_T* tmr);
+void TMR_ConfigUpdateRequest(TMR_T* tmr, TMR_UPDATE_SOURCE_T updateSource);
 void TMR_EnableHallSensor(TMR_T* tmr);
 void TMR_DisableHallSensor(TMR_T* tmr);
-void TMR_SelectSinglePulseMode(TMR_T* tmr, TMR_SPM_T singlePulseMode);
+
 void TMR_SelectOutputTrigger(TMR_T* tmr, TMR_TRGO_SOURCE_T TRGOSource);
 void TMR_SelectSlaveMode(TMR_T* tmr, TMR_SLAVE_MODE_T slaveMode);
 void TMR_EnableMasterSlaveMode(TMR_T* tmr);
@@ -629,7 +647,7 @@ void TMR_ConfigIC1Prescal(TMR_T* tmr, TMR_IC_PSC_T prescaler);
 void TMR_ConfigIC2Prescal(TMR_T* tmr, TMR_IC_PSC_T prescaler);
 void TMR_ConfigIC3Prescal(TMR_T* tmr, TMR_IC_PSC_T prescaler);
 void TMR_ConfigIC4Prescal(TMR_T* tmr, TMR_IC_PSC_T prescaler);
-void TMR_ConfigClockDivision(TMR_T* tmr, TMR_CLOCK_DIV_T clockDivision);
+
 uint16_t TMR_ReadCaputer1(TMR_T* tmr);
 uint16_t TMR_ReadCaputer2(TMR_T* tmr);
 uint16_t TMR_ReadCaputer3(TMR_T* tmr);
@@ -637,20 +655,20 @@ uint16_t TMR_ReadCaputer4(TMR_T* tmr);
 uint16_t TMR_ReadCounter(TMR_T* tmr);
 uint16_t TMR_ReadPrescaler(TMR_T* tmr);
 
-/** Interrupts and Event */
+/* Interrupts and Event */
 void TMR_EnableInterrupt(TMR_T* tmr, uint16_t interrupt);
 void TMR_DisableInterrupt(TMR_T* tmr, uint16_t interrupt);
-void TMR_GenerateEvent(TMR_T* tmr,uint16_t eventSources);
+void TMR_GenerateEvent(TMR_T* tmr, uint16_t eventSources);
 
-/** flags */
+/* flags */
 uint16_t TMR_ReadStatusFlag(TMR_T* tmr, TMR_FLAG_T flag);
 void TMR_ClearStatusFlag(TMR_T* tmr, uint16_t flag);
-uint16_t TMR_ReadIntFlag(TMR_T* tmr,  TMR_INT_T flag);
-void TMR_ClearIntFlag(TMR_T* tmr,  uint16_t flag);
+uint16_t TMR_ReadIntFlag(TMR_T* tmr, TMR_INT_T flag);
+void TMR_ClearIntFlag(TMR_T* tmr, uint16_t flag);
 
-/**@} end of group TMR_Fuctions*/
+/**@} end of group TMR_Functions */
 /**@} end of group TMR_Driver */
-/**@} end of group Peripherals_Library*/
+/**@} end of group APM32F10x_StdPeriphDriver */
 
 #ifdef __cplusplus
 }

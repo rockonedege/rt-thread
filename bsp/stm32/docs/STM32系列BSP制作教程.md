@@ -83,6 +83,11 @@ BSP 的制作过程分为如下五个步骤：
 
 ![复制通用模板](./figures/copy.png)
 
+注意：不要直接在 `bsp/stm32/libraries/templates/<series>` 模板目录中执行 `menuconfig` 或 `scons`。
+模板目录比实际 BSP 目录多了 `libraries/templates` 两级，`Kconfig` 中的相对路径只在模板被复制到
+`bsp/stm32/<board>` 后才匹配。请先将同系列模板复制到 `bsp/stm32/` 目录下并重命名为目标 BSP 名称，
+再进入新的 BSP 目录执行 `menuconfig`、`pkgs --update` 和 `scons`。
+
 在接下来的 BSP 的制作过程中，将会修改 board 文件夹内的配置文件，将 F1 系列的 BSP 模板变成一个适用于正点原子 `stm32f103-atk-nano` 开发板的 BSP ，下表总结了 board 文件夹中需要修改的内容：
 
 | 项目 | 需要修改的内容说明 |
@@ -101,21 +106,33 @@ BSP 的制作过程分为如下五个步骤：
 
 在 CubeMX 工程中将芯片型号为修改芯片型号为 STM32F103RBTx 。
 
+注意：本文使用的CubeMX版本为6.12.0
+
 #### 3.2.1 生成 CubeMX 工程
 
 配置系统时钟、外设引脚等，步骤如下图所示：
 
 1. 打开外部时钟、设置下载方式、打开串口外设（注意只需要选择串口外设引脚即可，无需配置其他参数）：
 
-![配置芯片引脚](./figures/CubeMX_1.png)
+![打开外部时钟](./figures/CubeMX_1.png)
+
+![设置下载方式](./figures/CubeMX_2.png)
+
+
+
+![配置串口](figures/CubeMX_3.png)
+
+
+
+
 
 2. 配置系统时钟：
 
-![配置系统时钟](./figures/CubeMX_2.png)
+![配置系统时钟](figures/CubeMX_4.png)
 
 3. 设置项目名称，并在指定地址重新生成 CubeMX 工程：
 
-![生成对应的配置代码](./figures/CubeMX_4.png)
+![生成对应的配置代码](figures/CubeMX_5.png)
 
 注意：在生成代码时，不要勾选以下选项（即：不让其生成单独的 .c/.h 驱动文件，直接全部更新到 rt-thread 要使用的 stm32xxx_hal_msp.c 文件中）
 
@@ -123,15 +140,23 @@ BSP 的制作过程分为如下五个步骤：
 
 最终 CubeMX 生成的工程目录结构如下图所示：
 
-![CubeMX 图7](./figures/CubeMX_5.png)
+![CubeMX 图7](./figures/CubeMX_6.png)
 
 #### 3.2.2 拷贝初始化函数
 
 在 **board.c** 文件中存放了函数 `SystemClock_Config()` ，该函数负责初始化系统时钟。当使用 CubeMX 工具对系统时钟重新配置的时候，需要更新这个函数。
 
-该函数由 CubeMX 工具生成，默认存放在`board/CubeMX_Config/Src/main.c` 文件中。但是该文件并没有被包含到我们的工程中，因此需要将这个函数从 main.c 中拷贝到 board.c 文件中。在整个 BSP 的制作过程中，这个函数是唯一要要拷贝的函数，该函数内容如下所示：
+该函数由 CubeMX 工具生成，默认存放在`board/CubeMX_Config/Src/main.c` 文件中。但是该文件并没有被包含到我们的工程中，因此需要将这个函数从 main.c 中拷贝到 board.c 文件中。该函数内容如下所示：
 
 ![board_1](./figures/board_1.png)
+
+如果你的MCU时钟树较为高级，且配置了外设使用PLL2、PLL3等非默认情况，生成了`PeriphCommonClock_Config()`函数，请也拷贝它。由于`rt-thread`并不会显式调用它，可在`SystemClock_Config()`中手动增加调用它。该函数内容可能如下所示：
+
+![board_pclock](figures/board_pclock.png)
+
+如果你的MCU包含MPU外设且并不想使用`rt-thread`提供的`Memory Protection`，想使用`cubemx`配置的内容时，可以拷贝生成的`MPU_Config()`。同样`rt-thread`不会显式调用它，你可以修改一下后使用`INIT_BOARD_EXPORT`等方式让其自动调用。该函数内容可能如下所示（实际使用建议分块仔细配置）：
+
+![board_mpu](figures/board_mpu.png)
 
 在 **board.h** 文件中配置了 FLASH 和 RAM 的相关参数，这个文件中需要修改的是 `STM32_FLASH_SIZE` 和 `STM32_SRAM_SIZE` 这两个宏控制的参数。本次制作的 BSP 所用的 STM32F103RBTx 芯片的 flash 大小为 128k，ram 的大小为 20k，因此对该文件作出如下的修改：
 
@@ -190,13 +215,35 @@ BSP 的制作过程分为如下五个步骤：
 
 ####  3.4.2 修改构建脚本
 
-**SConscript** 脚本决定 MDK/IAR 工程的生成以及编译过程中要添加文件。
+**SConscript** 脚本决定 MDK/IAR 工程的生成以及编译过程中要添加的文件。
 
-在这一步中需要修改芯片型号以及芯片启动文件的地址，修改内容如下图所示：
+在这一步中需要修改芯片型号以及芯片启动文件的地址，在BSP目录中存在两个SConscript文件，其中只有根目录下的需要修改，修改内容如下所示：
 
-![修改启动文件和芯片型号](./figures/SConscript.png)
+```diff
+# for module compiling
+import os
+Import('RTT_ROOT')
+Import('env')
+from building import *
 
-注意：如果在文件夹中找不到相应系列的 .s 文件，可能是多个系列的芯片重用了相同的启动文件，此时可以在 CubeMX 中生成目标芯片的工程，查看使用了哪个启动文件，然后再修改启动文件名。
+cwd = GetCurrentDir()
+objs = []
+list = os.listdir(cwd)
+
+- # 修改前模板中的存在如下宏定义语句:
+- env.Append(CPPDEFINES = ['STM32H723xx'])# 目标芯片宏定义，hal库将使用这个宏定义作判断
++ # 修改宏定义为对应的芯片型号，例如对于STM32F103xB，修改后的内容如下：
++ env.Append(CPPDEFINES = ['STM32F103xB'])
+for d in list:
+    path = os.path.join(cwd, d)
+    if os.path.isfile(os.path.join(path, 'SConscript')):
+        objs = objs + SConscript(os.path.join(d, 'SConscript'))
+
+Return('objs')
+
+
+```
+注意：由于BSP瘦身计划，template目录下的模板已经过时，SConscript文件可能与示例有所差异，请参考实际BSP或等待更新。
 
 #### 3.4.3 修改工程模板
 
@@ -213,8 +260,11 @@ BSP 的制作过程分为如下五个步骤：
 ![配置下载方式](./figures/template_3.png)
 
 ### 3.5 重新生成工程
+工程生成需要使用 Env 工具。
 
-重新生成工程需要使用 Env 工具。
+在进行工程生成前，必须在 Env 工具中执行 `pkgs --update` 命令。
+
+该命令会根据 Kconfig 配置自动拉取对应的 HAL 库软件包，这是后续编译成功的关键。  
 
 #### 3.5.1 重新生成 rtconfig.h 文件
 
@@ -265,11 +315,10 @@ STM32 BSP 的制作规范主要分为 3 个方面：工程配置，ENV 配置和
 #### 4.1.2 ENV 配置
 
 - 系统心跳统一设置为 1000（宏：RT_TICK_PER_SECOND）
-- BSP 中需要打开调试选项中的断言（宏：RT_DEBUG）
+- BSP 中需要打开调试选项中的断言（宏：RT_USING_DEBUG）
 - 系统空闲线程栈大小统一设置为 256（宏：IDLE_THREAD_STACK_SIZE）
 - 开启组件自动初始化（宏：RT_USING_COMPONENTS_INIT）
 - 需要开启 user main 选项（宏：RT_USING_USER_MAIN）
-- 默认关闭 libc（宏：RT_USING_LIBC）
 - FinSH 默认只使用 MSH 模式（宏：FINSH_USING_MSH_ONLY）
 
 #### 4.1.3 IDE 配置

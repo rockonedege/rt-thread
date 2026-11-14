@@ -1,25 +1,40 @@
 /*!
- * @file       apm32f10x_eint.c
+ * @file        apm32f10x_eint.c
  *
- * @brief      This file provides all the EINT firmware functions
+ * @brief       This file provides all the EINT firmware functions
  *
- * @version    V1.0.1
+ * @version     V1.0.4
  *
- * @date       2021-03-23
+ * @date        2022-12-01
  *
+ * @attention
+ *
+ *  Copyright (C) 2020-2022 Geehy Semiconductor
+ *
+ *  You may not use this file except in compliance with the
+ *  GEEHY COPYRIGHT NOTICE (GEEHY SOFTWARE PACKAGE LICENSE).
+ *
+ *  The program is only for reference, which is distributed in the hope
+ *  that it will be useful and instructional for customers to develop
+ *  their software. Unless required by applicable law or agreed to in
+ *  writing, the program is distributed on an "AS IS" BASIS, WITHOUT
+ *  ANY WARRANTY OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the GEEHY SOFTWARE PACKAGE LICENSE for the governing permissions
+ *  and limitations under the License.
  */
 
 #include "apm32f10x_eint.h"
 
-/** @addtogroup Peripherals_Library Standard Peripheral Library
+/** @addtogroup APM32F10x_StdPeriphDriver
   @{
 */
 
 /** @addtogroup EINT_Driver EINT Driver
+  * @brief EINT driver modules
   @{
 */
 
-/** @addtogroup EINT_Fuctions Fuctions
+/** @defgroup EINT_Functions Functions
   @{
 */
 
@@ -51,13 +66,13 @@ void EINT_Config(EINT_Config_T* eintConfig)
     uint32_t temp = 0;
     temp = (uint32_t)EINT_BASE;
 
-    if(eintConfig->lineCmd != DISABLE)
+    if (eintConfig->lineCmd != DISABLE)
     {
         EINT->IMASK &= ~eintConfig->line;
         EINT->EMASK &= ~eintConfig->line;
 
         temp += eintConfig->mode;
-        *(__IOM uint32_t *) temp |= eintConfig->line;
+        *(__IOM uint32_t*) temp |= eintConfig->line;
 
         EINT->RTEN &= ~eintConfig->line;
         EINT->FTEN &= ~eintConfig->line;
@@ -72,15 +87,30 @@ void EINT_Config(EINT_Config_T* eintConfig)
             temp = (uint32_t)EINT_BASE;
             temp += eintConfig->trigger;
 
-            *(__IOM uint32_t *) temp |= eintConfig->line;
+            *(__IOM uint32_t*) temp |= eintConfig->line;
         }
     }
     else
     {
         temp += eintConfig->mode;
 
-        *(__IOM uint32_t *) temp &= ~eintConfig->line;
+        *(__IOM uint32_t*) temp &= ~eintConfig->line;
     }
+}
+
+/*!
+ * @brief        Fills each EINT_Config_T member with its reset value.
+ *
+ * @param        eintConfig: pointer to a EINT_Config_T structure
+ *
+ * @retval       None
+ */
+void EINT_ConfigStructInit(EINT_Config_T* eintConfig)
+{
+    eintConfig->line = EINT_LINENONE;
+    eintConfig->mode = EINT_MODE_INTERRUPT;
+    eintConfig->trigger = EINT_TRIGGER_FALLING;
+    eintConfig->lineCmd = DISABLE;
 }
 
 /*!
@@ -108,7 +138,7 @@ uint8_t EINT_ReadStatusFlag(EINT_LINE_T line)
 {
     uint8_t status = RESET;
 
-    if((EINT->IPEND & line) != (uint32_t)RESET)
+    if ((EINT->IPEND & line) != (uint32_t)RESET)
     {
         status = SET;
     }
@@ -147,7 +177,7 @@ uint8_t EINT_ReadIntFlag(EINT_LINE_T line)
 
     enablestatus = EINT->IMASK & line;
 
-    if((EINT->IPEND & line) != ((uint32_t)RESET) && (enablestatus != (uint32_t)RESET))
+    if ((EINT->IPEND & line) != ((uint32_t)RESET) && (enablestatus != (uint32_t)RESET))
     {
         status = SET;
     }
@@ -171,6 +201,6 @@ void EINT_ClearIntFlag(uint32_t line)
     EINT->IPEND = line;
 }
 
-/**@} end of group EINT_Fuctions*/
+/**@} end of group EINT_Functions*/
 /**@} end of group EINT_Driver */
-/**@} end of group Peripherals_Library*/
+/**@} end of group APM32F10x_StdPeriphDriver*/
